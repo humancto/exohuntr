@@ -148,7 +148,8 @@ def download_toi_candidates(output_dir: Path, limit: int = 500) -> int:
             downloaded += 1
 
         except (OSError, ConnectionError, ValueError, RuntimeError) as e:
-            print(f"   Warning: skipping TIC {int(row.get('TIC ID', 0))}: {e}")
+            tic_label = row.get('TIC ID', 'unknown')
+            print(f"   Warning: skipping TIC {tic_label}: {e}")
             continue
 
     print(f"   ✅ Downloaded {downloaded} TOI light curves to {output_dir}/")

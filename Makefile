@@ -18,7 +18,7 @@ all: setup download hunt analyze
 # Install Python dependencies
 setup:
 	@echo "📦 Installing dependencies..."
-	pip install -r requirements.txt --quiet
+	python3.11 -m pip install -r requirements.txt --quiet
 
 # Download light curves
 download:

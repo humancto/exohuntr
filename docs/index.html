@@ -282,14 +282,16 @@ footer a{color:var(--accent);text-decoration:none}
   <div class="badge"><span class="dot"></span> Live Results from NASA TESS Data</div>
   <h1>Exohuntr</h1>
   <p class="tagline">
-    We pointed a laptop at <strong>NASA's TESS satellite data</strong> and found
-    <strong>197 exoplanet transit candidates</strong> using a Rust-powered detection engine.
+    An open-source pipeline that downloads NASA satellite data, scans for planetary transits
+    at <strong>50x the speed of Python</strong>, and independently rediscovered signals that
+    match NASA's own detections &mdash; including <strong>17 validated candidates</strong>
+    orbiting distant stars.
   </p>
   <div class="stats-bar">
-    <div class="stat"><div class="number">197</div><div class="label">Candidates Found</div></div>
-    <div class="stat"><div class="number orange">200</div><div class="label">Light Curves Analyzed</div></div>
-    <div class="stat"><div class="number purple">15,000</div><div class="label">Trial Periods / Star</div></div>
-    <div class="stat"><div class="number green">&lt;1s</div><div class="label">Per Star (Rust)</div></div>
+    <div class="stat"><div class="number">197</div><div class="label">Signals Detected</div></div>
+    <div class="stat"><div class="number orange">17</div><div class="label">Validated Candidates</div></div>
+    <div class="stat"><div class="number purple">5</div><div class="label">Tests Per Candidate</div></div>
+    <div class="stat"><div class="number green">70%+</div><div class="label">Period Match with NASA</div></div>
   </div>
   <div class="scroll-hint">
     <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>

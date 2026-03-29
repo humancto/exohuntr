@@ -1,0 +1,25 @@
+# Build artifacts
+target/
+*.o
+*.d
+
+# Data files (too large for git, re-downloadable)
+data/lightcurves/*.csv
+data/lightcurves/confirmed_exoplanets.csv
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Keep the data directory structure
+!data/lightcurves/.gitkeep

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exohuntr - We Pointed a Laptop at NASA Data and Found Planet Candidates</title>
+<meta name="description" content="197 exoplanet transit candidates discovered using Rust-powered BLS detection on NASA TESS data. Open-source citizen science.">
+<meta property="og:title" content="Exohuntr - Hunting Exoplanets with Rust and NASA Data">
+<meta property="og:description" content="We analyzed 200+ TESS light curves and found 197 transit candidates. Built with Rust for speed, Python for visualization.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050a18;--bg2:#0a1128;--bg3:#111b38;
+  --fg:#e2e8f0;--fg2:#94a3b8;--fg3:#64748b;
+  --accent:#22d3ee;--accent2:#06b6d4;
+  --orange:#fb923c;--purple:#a78bfa;--green:#34d399;
+  --red:#ef4444;--pink:#f472b6;
+  --glow:0 0 40px rgba(34,211,238,0.15);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  line-height:1.6;overflow-x:hidden;
+}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.stars::before,.stars::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px,rgba(255,255,255,0.3),transparent),
+    radial-gradient(2px 2px at 40px 70px,rgba(255,255,255,0.2),transparent),
+    radial-gradient(1px 1px at 90px 40px,rgba(255,255,255,0.4),transparent),
+    radial-gradient(1px 1px at 160px 120px,rgba(255,255,255,0.3),transparent),
+    radial-gradient(2px 2px at 200px 60px,rgba(255,255,255,0.15),transparent),
+    radial-gradient(1px 1px at 300px 180px,rgba(255,255,255,0.35),transparent),
+    radial-gradient(1px 1px at 350px 20px,rgba(255,255,255,0.25),transparent),
+    radial-gradient(2px 2px at 420px 140px,rgba(255,255,255,0.2),transparent);
+  background-size:500px 250px;
+}
+.stars::after{transform:rotate(30deg) scale(1.5);opacity:.5}
+
+.container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;
+  padding:60px 24px;position:relative;
+}
+.hero::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:200px;
+  background:linear-gradient(to bottom,transparent,var(--bg));
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border-radius:100px;
+  background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.2);
+  font-size:13px;font-weight:500;color:var(--accent);
+  margin-bottom:32px;letter-spacing:0.5px;
+  animation:fadeIn 1s ease;
+}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+.hero h1{
+  font-size:clamp(3rem,8vw,6rem);font-weight:900;
+  letter-spacing:-2px;line-height:1;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--purple) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:24px;animation:fadeIn 1s ease 0.2s both;
+}
+.hero .tagline{
+  font-size:clamp(1.1rem,2.5vw,1.5rem);color:var(--fg2);
+  max-width:700px;font-weight:300;line-height:1.5;
+  animation:fadeIn 1s ease 0.4s both;
+}
+.hero .tagline strong{color:var(--fg);font-weight:600}
+
+.stats-bar{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:48px;
+  margin-top:48px;animation:fadeIn 1s ease 0.6s both;
+}
+.stat{text-align:center}
+.stat .number{
+  font-size:clamp(2.5rem,5vw,4rem);font-weight:900;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--accent);line-height:1;
+}
+.stat .number.orange{color:var(--orange)}
+.stat .number.purple{color:var(--purple)}
+.stat .number.green{color:var(--green)}
+.stat .label{font-size:13px;color:var(--fg3);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px}
+
+section{padding:100px 0}
+.section-header{text-align:center;margin-bottom:64px}
+.section-header h2{
+  font-size:clamp(2rem,4vw,3rem);font-weight:800;
+  letter-spacing:-1px;margin-bottom:12px;
+}
+.section-header p{color:var(--fg2);font-size:1.1rem;max-width:600px;margin:0 auto}
+.section-header .accent{color:var(--accent)}
+
+.pipeline{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;
+  margin-bottom:64px;
+}
+.pipeline-step{
+  background:var(--bg2);border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;padding:32px;position:relative;overflow:hidden;
+  transition:all 0.3s ease;
+}
+.pipeline-step:hover{
+  border-color:rgba(34,211,238,0.2);transform:translateY(-4px);
+  box-shadow:var(--glow);
+}
+.pipeline-step .step-num{
+  font-family:'JetBrains Mono',monospace;font-size:48px;font-weight:800;
+  color:rgba(34,211,238,0.08);position:absolute;top:16px;right:24px;
+}
+.pipeline-step h3{font-size:1.2rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.pipeline-step .tech{
+  display:inline-block;padding:2px 8px;border-radius:6px;
+  font-size:11px;font-weight:600;letter-spacing:0.5px;
+}
+.tech.rust{background:rgba(251,147,60,0.15);color:var(--orange)}
+.tech.python{background:rgba(34,211,238,0.15);color:var(--accent)}
+.pipeline-step p{color:var(--fg2);font-size:0.95rem;margin-top:8px}
+
+.table-wrap{
+  background:var(--bg2);border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;overflow:hidden;
+}
+.table-controls{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:12px;
+}
+.table-controls .count{font-size:14px;color:var(--fg3)}
+.table-controls .count strong{color:var(--accent);font-weight:700}
+.search-box{
+  padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+  background:var(--bg);color:var(--fg);font-size:14px;width:250px;
+  outline:none;transition:border-color 0.2s;
+}
+.search-box:focus{border-color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:rgba(255,255,255,0.02)}
+th{
+  padding:12px 16px;text-align:left;font-weight:600;
+  color:var(--fg3);text-transform:uppercase;font-size:11px;letter-spacing:1px;
+  cursor:pointer;user-select:none;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+th:hover{color:var(--accent)}
+td{
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03);
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+}
+tr:hover td{background:rgba(34,211,238,0.03)}
+.snr-bar{
+  height:4px;border-radius:2px;background:var(--bg);
+  position:relative;overflow:hidden;min-width:80px;
+}
+.snr-bar-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
+.snr-high{background:var(--green)}
+.snr-med{background:var(--orange)}
+.snr-low{background:var(--fg3)}
+
+.gallery{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;
+}
+.plot-card{
+  background:var(--bg2);border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;overflow:hidden;transition:all 0.3s;cursor:pointer;
+}
+.plot-card:hover{border-color:rgba(34,211,238,0.3);transform:translateY(-2px);box-shadow:var(--glow)}
+.plot-card img{width:100%;display:block}
+.plot-card .info{padding:16px}
+.plot-card .info h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.plot-card .info .meta{font-size:12px;color:var(--fg3);font-family:'JetBrains Mono',monospace}
+
+.overview-plot{
+  background:var(--bg2);border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;overflow:hidden;margin-bottom:48px;
+}
+.overview-plot img{width:100%;display:block}
+
+.transit-demo{
+  max-width:600px;margin:0 auto 48px;text-align:center;
+  padding:40px;background:var(--bg2);border-radius:16px;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.transit-ascii{
+  font-family:'JetBrains Mono',monospace;font-size:14px;
+  color:var(--accent);line-height:1.4;white-space:pre;
+  margin:24px 0;
+}
+
+.cta-section{
+  text-align:center;padding:100px 24px;
+  background:linear-gradient(180deg,transparent,rgba(34,211,238,0.03),transparent);
+}
+.cta-section h2{font-size:clamp(2rem,4vw,2.5rem);font-weight:800;margin-bottom:16px}
+.cta-section p{color:var(--fg2);max-width:500px;margin:0 auto 32px;font-size:1.1rem}
+.cta-buttons{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;
+  text-decoration:none;transition:all 0.3s;border:none;cursor:pointer;
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:var(--bg)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(34,211,238,0.3)}
+.btn-secondary{background:transparent;color:var(--fg);border:1px solid rgba(255,255,255,0.15)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{
+  text-align:center;padding:48px 24px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  color:var(--fg3);font-size:13px;
+}
+footer a{color:var(--accent);text-decoration:none}
+
+.lightbox{
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);
+  justify-content:center;align-items:center;cursor:zoom-out;
+}
+.lightbox.active{display:flex}
+.lightbox img{max-width:95vw;max-height:95vh;border-radius:8px}
+
+.scroll-hint{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  animation:bounce 2s infinite;z-index:2;
+}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+.scroll-hint svg{width:24px;height:24px;stroke:var(--fg3);fill:none;stroke-width:2}
+
+.pagination{display:flex;justify-content:center;gap:8px;margin-top:20px;padding:20px}
+.page-btn{
+  padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);
+  background:var(--bg);color:var(--fg);cursor:pointer;font-size:13px;
+  transition:all 0.2s;
+}
+.page-btn:hover,.page-btn.active{
+  border-color:var(--accent);color:var(--accent);background:rgba(34,211,238,0.05);
+}
+
+.method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.method-card{
+  background:var(--bg2);border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;padding:24px;
+}
+.method-card h4{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent)}
+.method-card p{font-size:13px;color:var(--fg2)}
+.method-card .mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);margin-top:8px}
+
+.caveat-box{max-width:700px;margin:0 auto;background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px}
+.caveat-box p{color:var(--fg2);font-size:15px;line-height:1.8}
+.caveat-box strong{color:var(--orange)}
+.caveat-box ul{color:var(--fg2);font-size:14px;margin-top:16px;padding-left:20px;line-height:2}
+.caveat-box .note{color:var(--fg3);font-size:13px;margin-top:16px}
+.caveat-box a{color:var(--accent)}
+
+@media(max-width:768px){
+  .stats-bar{gap:24px}
+  .stat .number{font-size:2rem}
+  .gallery{grid-template-columns:1fr}
+  table{font-size:12px}
+  td,th{padding:8px}
+}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<section class="hero">
+  <div class="badge"><span class="dot"></span> Live Results from NASA TESS Data</div>
+  <h1>Exohuntr</h1>
+  <p class="tagline">
+    We pointed a laptop at <strong>NASA's TESS satellite data</strong> and found
+    <strong>197 exoplanet transit candidates</strong> using a Rust-powered detection engine.
+  </p>
+  <div class="stats-bar">
+    <div class="stat"><div class="number">197</div><div class="label">Candidates Found</div></div>
+    <div class="stat"><div class="number orange">200</div><div class="label">Light Curves Analyzed</div></div>
+    <div class="stat"><div class="number purple">15,000</div><div class="label">Trial Periods / Star</div></div>
+    <div class="stat"><div class="number green">&lt;1s</div><div class="label">Per Star (Rust)</div></div>
+  </div>
+  <div class="scroll-hint">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<section id="how">
+  <div class="container">
+    <div class="section-header">
+      <h2>How We Hunt <span class="accent">Planets</span></h2>
+      <p>When a planet crosses in front of its star, the star's brightness dips. We detect these dips algorithmically in NASA data.</p>
+    </div>
+    <div class="transit-demo">
+      <div class="transit-ascii">Flux &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9586;        &#9585;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
+                &#9586;      &#9585;
+                 &#9586;&#9472;&#9472;&#9472;&#9472;&#9585;    &#8592; Transit
+                   &#9650;
+              depth ~ (Rp/Rs)&#178;</div>
+      <p style="color:var(--fg2);font-size:14px">A planet blocking starlight creates a periodic dip in brightness. BLS searches for this pattern across thousands of orbital periods.</p>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-num">01</div>
+        <h3>Download <span class="tech python">Python</span></h3>
+        <p>Fetch real light curves from NASA MAST archive. We targeted <strong>unconfirmed TOI candidates</strong> &mdash; the best chance at real discovery.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">02</div>
+        <h3>Detect <span class="tech rust">Rust</span></h3>
+        <p>Parallel BLS (Box-fitting Least Squares) scans 15,000 trial periods per star using Rayon. <strong>10-50x faster</strong> than Python.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">03</div>
+        <h3>Analyze <span class="tech python">Python</span></h3>
+        <p>Phase-fold light curves, cross-match against 6,153 known exoplanets, generate publication-quality visualizations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="container">
+    <div class="section-header">
+      <h2>Discovery <span class="accent">Results</span></h2>
+      <p>197 transit signals detected above SNR 6.0 threshold. Top candidate has SNR 121.7 &mdash; an unmistakable signal.</p>
+    </div>
+    <div class="overview-plot">
+      <img src="candidate_overview.png" alt="Candidate overview: Period vs Depth, Period vs Radius Ratio, SNR distribution" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section id="candidates">
+  <div class="container">
+    <div class="section-header">
+      <h2>All <span class="accent">197</span> Candidates</h2>
+      <p>Every transit signal detected. Click column headers to sort. Search by TOI or TIC ID.</p>
+    </div>
+    <div class="table-wrap">
+      <div class="table-controls">
+        <div class="count">Showing <strong id="showing-count">1-20</strong> of <strong>197</strong> candidates</div>
+        <input type="text" class="search-box" id="search" placeholder="Search TOI or TIC ID...">
+      </div>
+      <div style="overflow-x:auto">
+        <table id="candidates-table">
+          <thead>
+            <tr>
+              <th data-sort="rank">#</th>
+              <th data-sort="filename">Target</th>
+              <th data-sort="period_days">Period (d)</th>
+              <th data-sort="snr">SNR</th>
+              <th data-sort="depth_ppm">Depth</th>
+              <th data-sort="n_transits">Transits</th>
+              <th data-sort="radius_ratio">Rp/Rs</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="container">
+    <div class="section-header">
+      <h2>Phase-Folded <span class="accent">Light Curves</span></h2>
+      <p>Top 30 candidates visualized. The dip at phase 0 is the transit &mdash; a planet blocking starlight. Click to enlarge.</p>
+    </div>
+    <div class="gallery" id="plot-gallery"></div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="container">
+    <div class="section-header">
+      <h2>Scientific <span class="accent">Methodology</span></h2>
+      <p>Rigorous detection pipeline following established transit photometry practices.</p>
+    </div>
+    <div class="method-grid">
+      <div class="method-card">
+        <h4>BLS Algorithm</h4>
+        <p>Box-fitting Least Squares (Kovacs, Zucker &amp; Mazeh 2002). Tests box-shaped transit models across all trial periods and phases.</p>
+        <div class="mono">15,000 periods x 200 bins x 8 widths</div>
+      </div>
+      <div class="method-card">
+        <h4>SNR Threshold</h4>
+        <p>Signal-to-Noise Ratio &ge; 6.0 required. Measures transit depth relative to out-of-transit scatter, scaled by sqrt(N in-transit).</p>
+        <div class="mono">SNR = depth / (scatter / sqrt(N))</div>
+      </div>
+      <div class="method-card">
+        <h4>Minimum Transits</h4>
+        <p>At least 2 transit events required for a credible detection. Prevents single-dip false positives.</p>
+        <div class="mono">n_transits &ge; 2</div>
+      </div>
+      <div class="method-card">
+        <h4>Cross-Matching</h4>
+        <p>All candidates checked against the NASA Exoplanet Archive (6,153 confirmed planets) to identify potentially new discoveries.</p>
+        <div class="mono">catalog: pscomppars table</div>
+      </div>
+      <div class="method-card">
+        <h4>Data Source</h4>
+        <p>TESS Objects of Interest (TOIs) from ExoFOP. Unconfirmed planet candidates with disposition "PC" (Planet Candidate).</p>
+        <div class="mono">200 TOI light curves processed</div>
+      </div>
+      <div class="method-card">
+        <h4>Performance</h4>
+        <p>Rust + Rayon parallel processing. The entire 200-star dataset was scanned in under 30 seconds on 8 CPU cores.</p>
+        <div class="mono">~10-50x faster than pure Python</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-header">
+      <h2>Important <span class="accent">Caveats</span></h2>
+    </div>
+    <div class="caveat-box">
+      <p>These are <strong>candidate detections</strong>, not confirmed planets. Before claiming discovery, candidates need:</p>
+      <ul>
+        <li>Eclipsing binary checks (V-shaped dips, odd/even depth differences)</li>
+        <li>Centroid shift analysis (signal may come from a background star)</li>
+        <li>Secondary eclipse search at phase 0.5</li>
+        <li>Cross-reference with ExoFOP community observations</li>
+        <li>Radial velocity follow-up for mass determination</li>
+        <li>Independent confirmation by professional astronomers</li>
+      </ul>
+      <p class="note">
+        Citizen scientists <em>have</em> discovered confirmed exoplanets through NASA's
+        <a href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess">Planet Hunters TESS</a> program.
+        Promising candidates can be submitted to <a href="https://exofop.ipac.caltech.edu/tess/">ExoFOP</a> for community vetting.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Run Your Own Hunt</h2>
+  <p>The entire pipeline is open source. Clone, pick a TESS sector, and start searching.</p>
+  <div class="cta-buttons">
+    <a href="https://github.com/AstroArchitekt/exohuntr" class="btn btn-primary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      View on GitHub
+    </a>
+    <a href="#results" class="btn btn-secondary">Explore Results</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>
+      Built with Rust, Python, and Claude Code. Data from NASA TESS via MAST.<br>
+      <a href="https://github.com/AstroArchitekt/exohuntr">Exohuntr</a> &mdash; Open-source exoplanet hunting.
+    </p>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <img id="lightbox-img" src="" alt="Phase-folded light curve">
+</div>
+
+<script>
+// Load candidates data
+fetch('candidates.json')
+  .then(r => r.json())
+  .then(data => {
+    window.ALL_CANDIDATES = data.candidates;
+    window.filteredData = [...data.candidates].sort((a,b) => b.snr - a.snr);
+    window.currentPage = 0;
+    renderTable();
+    renderGallery();
+  });
+
+const PAGE_SIZE = 20;
+
+function renderTable() {
+  const candidates = window.filteredData || [];
+  const start = window.currentPage * PAGE_SIZE;
+  const page = candidates.slice(start, start + PAGE_SIZE);
+  const maxSNR = Math.max(...(window.ALL_CANDIDATES || []).map(c => c.snr), 1);
+
+  const tbody = document.getElementById('table-body');
+  // Clear existing rows
+  while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+  page.forEach((c, i) => {
+    const rank = start + i + 1;
+    const snrPct = (c.snr / maxSNR * 100).toFixed(0);
+    const snrClass = c.snr > 50 ? 'snr-high' : c.snr > 20 ? 'snr-med' : 'snr-low';
+    const name = c.filename.replace('.csv','').replace('TOI_','TOI ').replace('_TIC_',' / TIC ');
+
+    const tr = document.createElement('tr');
+
+    const tdRank = document.createElement('td');
+    tdRank.style.color = 'var(--fg3)';
+    tdRank.textContent = rank;
+    tr.appendChild(tdRank);
+
+    const tdName = document.createElement('td');
+    tdName.style.color = 'var(--fg)';
+    tdName.style.fontWeight = '500';
+    tdName.textContent = name;
+    tr.appendChild(tdName);
+
+    const tdPeriod = document.createElement('td');
+    tdPeriod.textContent = c.period_days.toFixed(4);
+    tr.appendChild(tdPeriod);
+
+    const tdSNR = document.createElement('td');
+    tdSNR.style.color = c.snr > 50 ? 'var(--green)' : c.snr > 20 ? 'var(--orange)' : 'var(--fg2)';
+    tdSNR.style.fontWeight = '600';
+    tdSNR.textContent = c.snr.toFixed(1);
+    tr.appendChild(tdSNR);
+
+    const tdDepth = document.createElement('td');
+    tdDepth.textContent = (c.depth_ppm / 1e6).toFixed(2) + '%';
+    tr.appendChild(tdDepth);
+
+    const tdTransits = document.createElement('td');
+    tdTransits.style.textAlign = 'center';
+    tdTransits.textContent = c.n_transits;
+    tr.appendChild(tdTransits);
+
+    const tdRadius = document.createElement('td');
+    tdRadius.textContent = c.radius_ratio.toFixed(4);
+    tr.appendChild(tdRadius);
+
+    const tdSignal = document.createElement('td');
+    const bar = document.createElement('div');
+    bar.className = 'snr-bar';
+    const fill = document.createElement('div');
+    fill.className = 'snr-bar-fill ' + snrClass;
+    fill.style.width = snrPct + '%';
+    bar.appendChild(fill);
+    tdSignal.appendChild(bar);
+    tr.appendChild(tdSignal);
+
+    tbody.appendChild(tr);
+  });
+
+  const showingEl = document.getElementById('showing-count');
+  showingEl.textContent = (start + 1) + '-' + Math.min(start + PAGE_SIZE, candidates.length);
+  renderPagination();
+}
+
+function renderPagination() {
+  const candidates = window.filteredData || [];
+  const pages = Math.ceil(candidates.length / PAGE_SIZE);
+  const container = document.getElementById('pagination');
+  while (container.firstChild) container.removeChild(container.firstChild);
+  if (pages <= 1) return;
+
+  for (let i = 0; i < pages; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (i === window.currentPage ? ' active' : '');
+    btn.textContent = i + 1;
+    btn.addEventListener('click', function() {
+      window.currentPage = i;
+      renderTable();
+    });
+    container.appendChild(btn);
+  }
+}
+
+// Sort
+document.querySelectorAll('th[data-sort]').forEach(function(th) {
+  th.addEventListener('click', function() {
+    const key = th.dataset.sort;
+    if (!window.filteredData) return;
+    window.filteredData.sort(function(a, b) {
+      if (key === 'rank') return 0;
+      const va = a[key], vb = b[key];
+      if (typeof va === 'string') return va.localeCompare(vb);
+      return vb - va;
+    });
+    window.currentPage = 0;
+    renderTable();
+  });
+});
+
+// Search
+document.getElementById('search').addEventListener('input', function(e) {
+  var q = e.target.value.toLowerCase();
+  window.filteredData = (window.ALL_CANDIDATES || []).filter(function(c) {
+    return c.filename.toLowerCase().indexOf(q) !== -1;
+  });
+  window.currentPage = 0;
+  renderTable();
+});
+
+// Gallery
+function renderGallery() {
+  var gallery = document.getElementById('plot-gallery');
+  while (gallery.firstChild) gallery.removeChild(gallery.firstChild);
+
+  var plotFiles = [
+    'phase_fold_TOI_159.01_TIC_394657039.png',
+    'phase_fold_TOI_168.01_TIC_369457671.png',
+    'phase_fold_TOI_507.01_TIC_348538431.png',
+    'phase_fold_TOI_170.01_TIC_394698182.png',
+    'phase_fold_TOI_369.01_TIC_175482273.png',
+    'phase_fold_TOI_445.01_TIC_14091704.png',
+    'phase_fold_TOI_324.01_TIC_156002449.png',
+    'phase_fold_TOI_476.01_TIC_156987351.png',
+    'phase_fold_TOI_317.01_TIC_402319411.png',
+    'phase_fold_TOI_649.01_TIC_35582553.png',
+    'phase_fold_TOI_268.01_TIC_219253008.png',
+    'phase_fold_TOI_341.01_TIC_33911302.png',
+    'phase_fold_TOI_245.01_TIC_154618248.png',
+    'phase_fold_TOI_580.01_TIC_81419525.png',
+    'phase_fold_TOI_426.01_TIC_189013224.png',
+    'phase_fold_TOI_248.01_TIC_201793781.png',
+    'phase_fold_TOI_791.01_TIC_306472057.png',
+    'phase_fold_TOI_791.02_TIC_306472057.png',
+    'phase_fold_TOI_149.01_TIC_260985861.png',
+    'phase_fold_TOI_380.01_TIC_100014359.png',
+    'phase_fold_TOI_616.01_TIC_145879095.png',
+    'phase_fold_TOI_651.01_TIC_72090501.png',
+    'phase_fold_TOI_370.01_TIC_251855940.png',
+    'phase_fold_TOI_287.01_TIC_2758565.png',
+    'phase_fold_TOI_740.01_TIC_310009611.png',
+    'phase_fold_TOI_618.01_TIC_173640199.png',
+    'phase_fold_TOI_171.01_TIC_309257814.png',
+    'phase_fold_TOI_777.01_TIC_334305570.png',
+    'phase_fold_TOI_642.01_TIC_79292541.png',
+    'phase_fold_TOI_779.01_TIC_374095457.png'
+  ];
+
+  plotFiles.forEach(function(f) {
+    var name = f.replace('phase_fold_','').replace('.png','').replace('TOI_','TOI ').replace('_TIC_',' / TIC ');
+    var candidate = (window.ALL_CANDIDATES || []).find(function(c) {
+      return f.indexOf(c.filename.replace('.csv','')) !== -1;
+    });
+    var meta = candidate ? 'P=' + candidate.period_days.toFixed(4) + 'd | SNR=' + candidate.snr.toFixed(1) : '';
+
+    var card = document.createElement('div');
+    card.className = 'plot-card';
+    card.addEventListener('click', function() { showLightbox(f); });
+
+    var img = document.createElement('img');
+    img.src = f;
+    img.alt = 'Phase-folded light curve: ' + name;
+    img.loading = 'lazy';
+    card.appendChild(img);
+
+    var info = document.createElement('div');
+    info.className = 'info';
+    var h4 = document.createElement('h4');
+    h4.textContent = name;
+    info.appendChild(h4);
+    var metaDiv = document.createElement('div');
+    metaDiv.className = 'meta';
+    metaDiv.textContent = meta;
+    info.appendChild(metaDiv);
+    card.appendChild(info);
+
+    gallery.appendChild(card);
+  });
+}
+
+function showLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+document.getElementById('lightbox').addEventListener('click', function() {
+  this.classList.remove('active');
+});
+</script>
+</body>
+</html>

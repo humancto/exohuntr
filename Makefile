@@ -1,4 +1,4 @@
-.PHONY: all setup download hunt analyze clean viral
+.PHONY: all setup download hunt analyze clean viral test test-rust test-python
 
 # ============================================================================
 # 🔭 Exoplanet Hunter — Makefile
@@ -64,6 +64,23 @@ aggressive:
 		--n-periods 25000 \
 		--min-period 0.3 \
 		--max-period 40.0
+
+# ============================================================================
+# 🧪 Testing
+# ============================================================================
+
+# Run all tests (Rust + Python)
+test: test-rust test-python
+
+# Run Rust unit tests (66 tests across 4 modules)
+test-rust:
+	@echo "🧪 Running Rust tests..."
+	cargo test
+
+# Run Python tests
+test-python:
+	@echo "🧪 Running Python tests..."
+	python3.11 -m pytest tests/ -v
 
 # Clean generated files
 clean:

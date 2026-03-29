@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Exohuntr is a Rust + Python exoplanet transit detection pipeline that downloads NASA TESS light curves and runs BLS (Box-fitting Least Squares) transit detection to find planet candidates. The Rust engine handles compute-heavy BLS in parallel via Rayon; Python handles data access, validation, and visualization.
+Exohuntr is a Rust + Python exoplanet transit detection pipeline that downloads NASA TESS light curves and runs BLS (Box-fitting Least Squares) transit detection to find planet candidates. The Rust engine handles compute-heavy BLS, validation, and cross-matching in parallel via Rayon; Python handles data access, deep analysis, and visualization.
 
 **Repo:** humancto/exohuntr
 **GitHub Pages:** humancto.github.io/exohuntr
@@ -12,7 +12,13 @@ Exohuntr is a Rust + Python exoplanet transit detection pipeline that downloads 
 ```
 exoplanet-hunter/
 ├── Cargo.toml                          # Rust project config
-├── src/main.rs                         # Rust BLS engine (parallel, Rayon)
+├── src/
+│   ├── lib.rs                          # Rust library root
+│   ├── bls.rs                          # BLS algorithm, SNR, phase math
+│   ├── validate.rs                     # 5 false-positive tests + scoring
+│   ├── crossmatch.rs                   # Hash-based catalog cross-matching
+│   ├── io.rs                           # CSV parsing, file discovery
+│   └── main.rs                         # CLI: search, validate, crossmatch subcommands
 ├── python/
 │   ├── download_lightcurves.py         # Fetch data from MAST/NASA
 │   ├── analyze_candidates.py           # Phase-fold plots, cross-matching, reports
@@ -29,11 +35,36 @@ exoplanet-hunter/
 │   ├── index.html                      # Interactive results page
 │   ├── candidates.json                 # Detection data for web UI
 │   └── *.png                           # Phase-fold plot images
+├── tests/
+│   ├── conftest.py                     # Shared Python test fixtures
+│   ├── test_validate_candidates.py     # Python validation tests
+│   └── test_analyze_candidates.py      # Python analysis tests
 ├── candidates.json                     # BLS output (intermediate)
-├── Makefile                            # Build & run automation
+├── Makefile                            # Build & run automation + `make test`
+├── pytest.ini                          # Python test configuration
 ├── scripts/setup.sh                    # One-command setup
 └── CLAUDE.md                           # You are here
 ```
+
+## Testing
+
+Run all tests (98 total: 66 Rust + 32 Python):
+
+```bash
+make test          # Run everything
+cargo test         # Rust only (66 tests: bls, validate, crossmatch, io)
+python3.11 -m pytest tests/ -v  # Python only (32 tests)
+```
+
+### Rust test modules:
+- `bls::tests` — BLS period recovery, SNR estimation, phase math, median (18 tests)
+- `validate::tests` — All 5 false-positive tests, scoring, integration (23 tests)
+- `crossmatch::tests` — Catalog indexing, lookup, CSV loading (13 tests)
+- `io::tests` — CSV parsing, NaN handling, file discovery (8 tests)
+
+### Python test files:
+- `tests/test_validate_candidates.py` — Validation functions, scoring (24 tests)
+- `tests/test_analyze_candidates.py` — Plotting, cross-matching, binning (8 tests)
 
 ## Pipeline Steps
 
@@ -52,6 +83,9 @@ python3.11 python/download_lightcurves.py --candidates-only --limit 500 --catalo
 
 ```bash
 cargo build --release
+# Using subcommand (recommended):
+./target/release/hunt search -i data/lightcurves -o candidates.json --snr-threshold 6.0
+# Backward-compatible top-level flags also work:
 ./target/release/hunt -i data/lightcurves -o candidates.json --snr-threshold 6.0
 ```
 
@@ -71,12 +105,22 @@ python3.11 python/analyze_candidates.py --input candidates.json --lightcurves da
 ### Step 4: Validate candidates (CRITICAL)
 
 ```bash
+# Rust validation (fast, parallel via Rayon):
+./target/release/hunt validate -i candidates.json -l data/lightcurves -o results/
+
+# Python validation (with ExoFOP cross-reference):
 python3.11 python/validate_candidates.py
 ```
 
-Runs 5 false positive tests on every candidate and produces a scored validation report.
+Both run the same 5 false positive tests. The Rust version runs tests in parallel and outputs JSON. The Python version can additionally fetch ExoFOP catalog data for period agreement.
 
-## Validation Pipeline (validate_candidates.py)
+### Step 5: Cross-match (optional)
+
+```bash
+./target/release/hunt crossmatch -i candidates.json -c data/lightcurves/confirmed_exoplanets.csv -o results/crossmatch_results.csv
+```
+
+## Validation Pipeline (Rust: `validate.rs` / Python: `validate_candidates.py`)
 
 This is the scientific rigor layer. Based on standard methods from:
 

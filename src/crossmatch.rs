@@ -71,7 +71,10 @@ impl CatalogIndex {
         let mut best_match: Option<(&str, &Vec<CatalogEntry>)> = None;
         for (hostname, entries) in &self.by_hostname {
             if normalized.contains(hostname.as_str()) {
-                if best_match.is_none() || hostname.len() > best_match.unwrap().0.len() {
+                let dominated = best_match
+                    .map(|(prev, _)| hostname.len() > prev.len())
+                    .unwrap_or(true);
+                if dominated {
                     best_match = Some((hostname, entries));
                 }
             }
@@ -144,9 +147,7 @@ pub fn crossmatch_candidates(
 /// remove common prefixes.
 fn normalize_name(name: &str) -> String {
     name.to_lowercase()
-        .replace(' ', "_")
-        .replace('-', "_")
-        .replace('/', "_")
+        .replace([' ', '-', '/'], "_")
 }
 
 #[cfg(test)]

@@ -4,7 +4,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use rayon::prelude::*;
 use serde::Serialize;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use exoplanet_hunter::{bls, crossmatch, io, validate};
@@ -16,7 +16,8 @@ use exoplanet_hunter::{bls, crossmatch, io, validate};
 #[derive(Parser)]
 #[command(
     name = "hunt",
-    about = "Exoplanet Hunter — BLS Transit Detection & Validation in Rust"
+    about = "Exoplanet Hunter — BLS Transit Detection & Validation in Rust",
+    version,
 )]
 struct Cli {
     #[command(subcommand)]
@@ -141,9 +142,9 @@ struct HuntReport {
 // Search
 // ============================================================================
 
-fn run_search(
-    input: &PathBuf,
-    output: &PathBuf,
+struct SearchConfig {
+    input: PathBuf,
+    output: PathBuf,
     min_period: f64,
     max_period: f64,
     n_periods: usize,
@@ -152,28 +153,30 @@ fn run_search(
     max_duration_frac: f64,
     snr_threshold: f64,
     threads: usize,
-) -> Result<()> {
-    if threads > 0 {
+}
+
+fn run_search(cfg: &SearchConfig) -> Result<()> {
+    if cfg.threads > 0 {
         rayon::ThreadPoolBuilder::new()
-            .num_threads(threads)
+            .num_threads(cfg.threads)
             .build_global()
             .ok();
     }
 
     println!("\n🔭 Exoplanet Hunter v0.2.0");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!("  Period range:  {:.2} – {:.2} days", min_period, max_period);
-    println!("  Trial periods: {}", n_periods);
-    println!("  Phase bins:    {}", n_bins);
-    println!("  SNR threshold: {:.1}", snr_threshold);
+    println!("  Period range:  {:.2} – {:.2} days", cfg.min_period, cfg.max_period);
+    println!("  Trial periods: {}", cfg.n_periods);
+    println!("  Phase bins:    {}", cfg.n_bins);
+    println!("  SNR threshold: {:.1}", cfg.snr_threshold);
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
-    let periods = bls::generate_periods(min_period, max_period, n_periods);
-    let files = io::find_csv_files(input)?;
+    let periods = bls::generate_periods(cfg.min_period, cfg.max_period, cfg.n_periods);
+    let files = io::find_csv_files(&cfg.input)?;
     println!("📁 Found {} light curve files\n", files.len());
 
     if files.is_empty() {
-        println!("⚠️  No CSV files found in {:?}", input);
+        println!("⚠️  No CSV files found in {:?}", cfg.input);
         return Ok(());
     }
 
@@ -184,6 +187,11 @@ fn run_search(
             .unwrap()
             .progress_chars("█▉▊▋▌▍▎▏ "),
     );
+
+    let snr_threshold = cfg.snr_threshold;
+    let n_bins = cfg.n_bins;
+    let min_duration_frac = cfg.min_duration_frac;
+    let max_duration_frac = cfg.max_duration_frac;
 
     let counter = AtomicU64::new(0);
     let candidates: Vec<TransitCandidate> = files
@@ -263,14 +271,14 @@ fn run_search(
     let report = HuntReport {
         total_lightcurves: files.len(),
         candidates_found: candidates.len(),
-        snr_threshold,
-        period_range: [min_period, max_period],
+        snr_threshold: cfg.snr_threshold,
+        period_range: [cfg.min_period, cfg.max_period],
         candidates,
     };
 
     let json = serde_json::to_string_pretty(&report)?;
-    fs::write(output, &json)?;
-    println!("\n📄 Report saved to {:?}\n", output);
+    fs::write(&cfg.output, &json)?;
+    println!("\n📄 Report saved to {:?}\n", cfg.output);
 
     Ok(())
 }
@@ -280,9 +288,9 @@ fn run_search(
 // ============================================================================
 
 fn run_validate(
-    input: &PathBuf,
-    lightcurves: &PathBuf,
-    output: &PathBuf,
+    input: &Path,
+    lightcurves: &Path,
+    output: &Path,
     threads: usize,
 ) -> Result<()> {
     if threads > 0 {
@@ -316,15 +324,17 @@ fn run_validate(
 
             Some(validate::validate_candidate(
                 &lc,
-                c.period_days,
-                c.epoch,
-                c.duration_hours,
-                c.snr,
-                c.depth_ppm,
-                c.radius_ratio,
-                c.n_transits,
-                c.bls_power,
-                None, // reference period from ExoFOP handled in Python
+                &validate::CandidateParams {
+                    period: c.period_days,
+                    epoch: c.epoch,
+                    duration_hours: c.duration_hours,
+                    snr: c.snr,
+                    depth_ppm: c.depth_ppm,
+                    radius_ratio: c.radius_ratio,
+                    n_transits: c.n_transits,
+                    bls_power: c.bls_power,
+                    reference_period: None, // reference period from ExoFOP handled in Python
+                },
             ))
         })
         .collect();
@@ -374,7 +384,7 @@ fn run_validate(
 // Crossmatch
 // ============================================================================
 
-fn run_crossmatch(input: &PathBuf, catalog: &PathBuf, output: &PathBuf) -> Result<()> {
+fn run_crossmatch(input: &Path, catalog: &Path, output: &Path) -> Result<()> {
     println!("\nExohuntr — Cross-Match Pipeline");
     println!("{}", "=".repeat(55));
 
@@ -432,9 +442,9 @@ fn main() -> Result<()> {
             max_duration_frac,
             snr_threshold,
             threads,
-        }) => run_search(
-            &input,
-            &output,
+        }) => run_search(&SearchConfig {
+            input,
+            output,
             min_period,
             max_period,
             n_periods,
@@ -443,7 +453,7 @@ fn main() -> Result<()> {
             max_duration_frac,
             snr_threshold,
             threads,
-        ),
+        }),
         Some(Commands::Validate {
             input,
             lightcurves,
@@ -458,18 +468,18 @@ fn main() -> Result<()> {
         None => {
             // Backward compatibility: if --input is provided, run search
             if let Some(input) = cli.input {
-                run_search(
-                    &input,
-                    &cli.output,
-                    cli.min_period,
-                    cli.max_period,
-                    cli.n_periods,
-                    cli.n_bins,
-                    cli.min_duration_frac,
-                    cli.max_duration_frac,
-                    cli.snr_threshold,
-                    cli.threads,
-                )
+                run_search(&SearchConfig {
+                    input,
+                    output: cli.output,
+                    min_period: cli.min_period,
+                    max_period: cli.max_period,
+                    n_periods: cli.n_periods,
+                    n_bins: cli.n_bins,
+                    min_duration_frac: cli.min_duration_frac,
+                    max_duration_frac: cli.max_duration_frac,
+                    snr_threshold: cli.snr_threshold,
+                    threads: cli.threads,
+                })
             } else {
                 println!("Usage: hunt <command> or hunt -i <input_dir>");
                 println!("Commands: search, validate, crossmatch");

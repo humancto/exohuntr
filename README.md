@@ -87,7 +87,7 @@ Full interactive results: **[humancto.github.io/exohuntr](https://humancto.githu
 ```
   ┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
   │  NASA MAST  │───>│   BLS        │───>│  Validation  │───>│    Deep      │
-  │  (Python)   │    │   (Rust)     │    │  (Python)    │    │  Validation  │
+  │  (Python)   │    │   (Rust)     │    │  (Rust)      │    │  Validation  │
   │             │    │              │    │              │    │  (Python)    │
   │ lightkurve  │    │ 15K trial    │    │ 5 false-     │    │ Centroid     │
   │ TESS TOIs   │    │ periods per  │    │ positive     │    │ Gaia DR3     │
@@ -95,7 +95,19 @@ Full interactive results: **[humancto.github.io/exohuntr](https://humancto.githu
   │             │    │ threshold    │    │ candidate    │    │ Multi-sector │
   └─────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
         │                  │                   │                    │
-   data/lightcurves/  candidates.json  VALIDATION_REPORT.md  DEEP_ANALYSIS.md
+   data/lightcurves/  candidates.json  validation_results.json  DEEP_ANALYSIS.md
+```
+
+The Rust engine is structured as a reusable library (`exoplanet_hunter`) with four modules and a CLI binary (`hunt`) with subcommands:
+
+```
+src/
+├── lib.rs           # Library root — exports all modules
+├── bls.rs           # BLS algorithm, SNR estimation, phase math, median
+├── validate.rs      # 5 false-positive tests + scoring (parallel via Rayon)
+├── crossmatch.rs    # Hash-based catalog cross-matching (O(1) lookups)
+├── io.rs            # CSV light curve parsing, file discovery
+└── main.rs          # CLI binary with search/validate/crossmatch subcommands
 ```
 
 ### Step 1: BLS Transit Detection
@@ -184,34 +196,62 @@ git clone https://github.com/humancto/exohuntr.git
 cd exohuntr
 
 # Download unconfirmed TOI light curves from NASA MAST
-python python/download_lightcurves.py --candidates-only --limit 200 --catalog
+python3.11 python/download_lightcurves.py --candidates-only --limit 200 --catalog
 
-# Build and run BLS transit detection
+# Build and run BLS transit detection (search subcommand)
 cargo build --release
-./target/release/hunt -i data/lightcurves -o candidates.json --snr-threshold 6.0
+./target/release/hunt search -i data/lightcurves -o candidates.json --snr-threshold 6.0
 
-# Analyze: phase-fold plots, cross-matching, report
-python python/analyze_candidates.py --input candidates.json --lightcurves data/lightcurves/ --crossmatch --top-n 30
+# Validate in Rust: parallel false-positive tests on all candidates
+./target/release/hunt validate -i candidates.json -l data/lightcurves -o results/
 
-# Validate: 5 false-positive tests on all candidates
-python python/validate_candidates.py
+# Cross-match against known exoplanet catalog in Rust
+./target/release/hunt crossmatch -i candidates.json -c data/lightcurves/confirmed_exoplanets.csv -o results/crossmatch_results.csv
+
+# Analyze: phase-fold plots, report (Python)
+python3.11 python/analyze_candidates.py --input candidates.json --lightcurves data/lightcurves/ --crossmatch --top-n 30
 
 # Deep analysis: centroid, Gaia, TLS, multi-sector on top candidates
-python python/deep_analysis.py
+python3.11 python/deep_analysis.py
 ```
 
-Or use `make all` to run the first three steps automatically.
+The original top-level flags (`hunt -i <dir>`) remain supported for backward compatibility.
+
+Or use `make all` to run the download/search/analyze steps automatically.
+
+### Running tests
+
+```bash
+# All tests (66 Rust + 32 Python)
+make test
+
+# Rust only
+cargo test
+
+# Python only
+python3.11 -m pytest tests/ -v
+```
 
 ### Project Structure
 
 ```
 exohuntr/
-├── src/main.rs                         # Rust BLS transit detection engine
+├── src/
+│   ├── lib.rs                          # Rust library root
+│   ├── bls.rs                          # BLS algorithm + SNR estimation (18 tests)
+│   ├── validate.rs                     # 5 false-positive tests + scoring (23 tests)
+│   ├── crossmatch.rs                   # Hash-based catalog matching (13 tests)
+│   ├── io.rs                           # CSV parsing + file discovery (8 tests)
+│   └── main.rs                         # CLI: search, validate, crossmatch subcommands
 ├── python/
 │   ├── download_lightcurves.py         # TESS light curve download from MAST
 │   ├── analyze_candidates.py           # Phase-fold plots, cross-matching, reports
-│   ├── validate_candidates.py          # 5-test false-positive validation
+│   ├── validate_candidates.py          # 5-test false-positive validation (Python)
 │   └── deep_analysis.py               # Centroid, Gaia, TLS, multi-sector validation
+├── tests/
+│   ├── conftest.py                     # Shared fixtures (synthetic LCs, mock catalogs)
+│   ├── test_validate_candidates.py     # Python validation tests (24 tests)
+│   └── test_analyze_candidates.py      # Python analysis tests (8 tests)
 ├── results/
 │   ├── plots/                          # Phase-folded light curve plots
 │   ├── deep_analysis/                  # TLS, centroid, secondary eclipse plots
@@ -220,8 +260,9 @@ exohuntr/
 │   └── DEEP_ANALYSIS.md               # Deep validation milestone report
 ├── docs/                               # GitHub Pages interactive results
 ├── candidates.json                     # Raw BLS detection output
-├── Cargo.toml                          # Rust dependencies
-└── Makefile                            # Pipeline automation
+├── Cargo.toml                          # Rust dependencies + dev-dependencies
+├── pytest.ini                          # Python test configuration
+└── Makefile                            # Pipeline automation + `make test`
 ```
 
 ---

@@ -77,18 +77,16 @@ def plot_phase_folded(candidate: dict, lc_dir: Path, output_dir: Path):
     phase = ((time - epoch) / period) % 1.0
     phase[phase > 0.5] -= 1.0  # center transit at 0
 
-    # Bin the folded data
+    # Bin the folded data (vectorized)
     n_bins = 100
     bin_edges = np.linspace(-0.5, 0.5, n_bins + 1)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     bin_flux = np.zeros(n_bins)
     bin_count = np.zeros(n_bins)
 
-    for i in range(len(phase)):
-        b = int((phase[i] + 0.5) * n_bins)
-        b = min(b, n_bins - 1)
-        bin_flux[b] += flux[i]
-        bin_count[b] += 1
+    bins = np.clip(((phase + 0.5) * n_bins).astype(int), 0, n_bins - 1)
+    np.add.at(bin_flux, bins, flux)
+    np.add.at(bin_count, bins, 1)
 
     mask = bin_count > 0
     bin_flux[mask] /= bin_count[mask]

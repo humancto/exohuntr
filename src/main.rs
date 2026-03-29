@@ -1,13 +1,13 @@
-use anyhow::{Context, Result};
-use clap::Parser;
-use csv::ReaderBuilder;
+use anyhow::Result;
+use clap::{Parser, Subcommand};
 use indicatif::{ProgressBar, ProgressStyle};
-use ordered_float::OrderedFloat;
 use rayon::prelude::*;
 use serde::Serialize;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
+
+use exoplanet_hunter::{bls, crossmatch, io, validate};
 
 // ============================================================================
 // CLI
@@ -16,42 +16,39 @@ use std::sync::atomic::{AtomicU64, Ordering};
 #[derive(Parser)]
 #[command(
     name = "hunt",
-    about = "🔭 Exoplanet Hunter — BLS Transit Detection in Rust"
+    about = "Exoplanet Hunter — BLS Transit Detection & Validation in Rust"
 )]
 struct Cli {
-    /// Directory containing light curve CSV files (time, flux, flux_err)
+    #[command(subcommand)]
+    command: Option<Commands>,
+
+    // Top-level flags for backward compatibility (search mode)
+    /// Directory containing light curve CSV files
     #[arg(short, long)]
-    input: PathBuf,
+    input: Option<PathBuf>,
 
     /// Output JSON file for candidates
     #[arg(short, long, default_value = "candidates.json")]
     output: PathBuf,
 
-    /// Minimum trial period in days
     #[arg(long, default_value_t = 0.5)]
     min_period: f64,
 
-    /// Maximum trial period in days
     #[arg(long, default_value_t = 20.0)]
     max_period: f64,
 
-    /// Number of trial periods to test
     #[arg(long, default_value_t = 10_000)]
     n_periods: usize,
 
-    /// Number of phase bins
     #[arg(long, default_value_t = 200)]
     n_bins: usize,
 
-    /// Minimum transit duration as fraction of period
     #[arg(long, default_value_t = 0.01)]
     min_duration_frac: f64,
 
-    /// Maximum transit duration as fraction of period
     #[arg(long, default_value_t = 0.05)]
     max_duration_frac: f64,
 
-    /// Minimum SNR to report as candidate
     #[arg(long, default_value_t = 6.0)]
     snr_threshold: f64,
 
@@ -60,33 +57,78 @@ struct Cli {
     threads: usize,
 }
 
+#[derive(Subcommand)]
+enum Commands {
+    /// Run BLS transit search on light curves
+    Search {
+        #[arg(short, long)]
+        input: PathBuf,
+        #[arg(short, long, default_value = "candidates.json")]
+        output: PathBuf,
+        #[arg(long, default_value_t = 0.5)]
+        min_period: f64,
+        #[arg(long, default_value_t = 20.0)]
+        max_period: f64,
+        #[arg(long, default_value_t = 10_000)]
+        n_periods: usize,
+        #[arg(long, default_value_t = 200)]
+        n_bins: usize,
+        #[arg(long, default_value_t = 0.01)]
+        min_duration_frac: f64,
+        #[arg(long, default_value_t = 0.05)]
+        max_duration_frac: f64,
+        #[arg(long, default_value_t = 6.0)]
+        snr_threshold: f64,
+        #[arg(long, default_value_t = 0)]
+        threads: usize,
+    },
+    /// Validate BLS candidates with false-positive tests
+    Validate {
+        /// Input candidates JSON from search
+        #[arg(short, long, default_value = "candidates.json")]
+        input: PathBuf,
+        /// Directory containing light curve CSV files
+        #[arg(short, long, default_value = "data/lightcurves")]
+        lightcurves: PathBuf,
+        /// Output directory for validation results
+        #[arg(short, long, default_value = "results")]
+        output: PathBuf,
+        /// Number of threads (0 = auto)
+        #[arg(long, default_value_t = 0)]
+        threads: usize,
+    },
+    /// Cross-match candidates against known exoplanet catalog
+    Crossmatch {
+        /// Input candidates JSON from search
+        #[arg(short, long, default_value = "candidates.json")]
+        input: PathBuf,
+        /// Path to confirmed exoplanet catalog CSV
+        #[arg(short, long, default_value = "data/lightcurves/confirmed_exoplanets.csv")]
+        catalog: PathBuf,
+        /// Output CSV for cross-match results
+        #[arg(short, long, default_value = "results/crossmatch_results.csv")]
+        output: PathBuf,
+    },
+}
+
 // ============================================================================
 // Data Structures
 // ============================================================================
 
-#[derive(Debug, Clone)]
-struct LightCurve {
-    filename: String,
-    time: Vec<f64>,
-    flux: Vec<f64>,
-    flux_err: Vec<f64>,
-}
-
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, serde::Deserialize)]
 struct TransitCandidate {
     filename: String,
     period_days: f64,
-    epoch: f64, // time of first transit
+    epoch: f64,
     duration_hours: f64,
-    depth_ppm: f64, // transit depth in parts per million
+    depth_ppm: f64,
     snr: f64,
     n_transits: usize,
     bls_power: f64,
-    /// Estimated planet radius relative to star (Rp/Rs)
     radius_ratio: f64,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, serde::Deserialize)]
 struct HuntReport {
     total_lightcurves: usize,
     candidates_found: usize,
@@ -96,323 +138,45 @@ struct HuntReport {
 }
 
 // ============================================================================
-// BLS Algorithm
+// Search
 // ============================================================================
 
-/// Box-fitting Least Squares (Kovács, Zucker & Mazeh 2002)
-///
-/// For each trial period P:
-///   1. Phase-fold the light curve
-///   2. Bin the folded data
-///   3. Slide a "box" (transit model) across all phases
-///   4. For each box position and width, compute the BLS statistic:
-///      SR = sqrt(n) * |signal_in_box - signal_out_box| / scatter
-///   5. Record the best (highest SR) configuration
-///
-fn bls_search(
-    lc: &LightCurve,
-    periods: &[f64],
+fn run_search(
+    input: &PathBuf,
+    output: &PathBuf,
+    min_period: f64,
+    max_period: f64,
+    n_periods: usize,
     n_bins: usize,
-    min_dur_frac: f64,
-    max_dur_frac: f64,
-) -> Option<(f64, f64, f64, f64, f64)> {
-    // (best_period, best_phase, best_duration_frac, best_depth, best_power)
-
-    let n = lc.time.len();
-    if n < 50 {
-        return None; // not enough data
-    }
-
-    // Normalize flux: subtract median, divide by MAD
-    let mut sorted_flux = lc.flux.clone();
-    sorted_flux.sort_by_key(|&f| OrderedFloat(f));
-    let median = sorted_flux[n / 2];
-
-    let mut deviations: Vec<f64> = lc.flux.iter().map(|&f| (f - median).abs()).collect();
-    deviations.sort_by_key(|&d| OrderedFloat(d));
-    let mad = deviations[n / 2] * 1.4826; // scale to std
-
-    if mad < 1e-10 {
-        return None; // constant flux, no signal possible
-    }
-
-    let norm_flux: Vec<f64> = lc.flux.iter().map(|&f| (f - median) / mad).collect();
-
-    // Weights from flux errors
-    let weights: Vec<f64> = lc
-        .flux_err
-        .iter()
-        .map(|&e| {
-            let w = if e > 1e-10 { 1.0 / (e * e) } else { 1.0 };
-            w
-        })
-        .collect();
-    let total_weight: f64 = weights.iter().sum();
-
-    let time_span = lc.time[n - 1] - lc.time[0];
-
-    let mut best_power = f64::NEG_INFINITY;
-    let mut best_period = 0.0;
-    let mut best_phase = 0.0;
-    let mut best_dur_frac = 0.0;
-    let mut best_depth = 0.0;
-
-    for &period in periods {
-        if period > time_span * 0.5 {
-            continue; // need at least 2 transits
-        }
-
-        // Phase-fold and bin
-        let mut bin_sum = vec![0.0f64; n_bins];
-        let mut bin_weight = vec![0.0f64; n_bins];
-        let mut bin_count = vec![0usize; n_bins];
-
-        for i in 0..n {
-            let phase = ((lc.time[i] - lc.time[0]) % period) / period;
-            let phase = if phase < 0.0 { phase + 1.0 } else { phase };
-            let bin = (phase * n_bins as f64) as usize;
-            let bin = bin.min(n_bins - 1);
-            bin_sum[bin] += norm_flux[i] * weights[i];
-            bin_weight[bin] += weights[i];
-            bin_count[bin] += 1;
-        }
-
-        // Compute bin averages
-        let _bin_avg: Vec<f64> = (0..n_bins)
-            .map(|b| {
-                if bin_weight[b] > 0.0 {
-                    bin_sum[b] / bin_weight[b]
-                } else {
-                    0.0
-                }
-            })
-            .collect();
-
-        // Slide the box: try different transit start phases and durations
-        let min_box = (min_dur_frac * n_bins as f64).max(1.0) as usize;
-        let max_box = (max_dur_frac * n_bins as f64).max(min_box as f64 + 1.0) as usize;
-
-        for box_width in min_box..=max_box.min(n_bins / 2) {
-            for start in 0..n_bins {
-                // Sum inside box
-                let mut s_in = 0.0;
-                let mut w_in = 0.0;
-                let mut n_in = 0usize;
-
-                for j in 0..box_width {
-                    let bin = (start + j) % n_bins;
-                    s_in += bin_sum[bin];
-                    w_in += bin_weight[bin];
-                    n_in += bin_count[bin];
-                }
-
-                if w_in < 1e-10 || n_in < 3 {
-                    continue;
-                }
-
-                let w_out = total_weight - w_in;
-                if w_out < 1e-10 {
-                    continue;
-                }
-
-                let avg_in = s_in / w_in;
-                let avg_out = (bin_sum.iter().sum::<f64>() - s_in) / w_out;
-                let depth = avg_out - avg_in; // positive = dip
-
-                // BLS power: SR statistic
-                let power = depth * (w_in * w_out / total_weight).sqrt();
-
-                if power > best_power {
-                    best_power = power;
-                    best_period = period;
-                    best_phase = start as f64 / n_bins as f64;
-                    best_dur_frac = box_width as f64 / n_bins as f64;
-                    best_depth = depth;
-                }
-            }
-        }
-    }
-
-    if best_power > f64::NEG_INFINITY {
-        Some((
-            best_period,
-            best_phase,
-            best_dur_frac,
-            best_depth,
-            best_power,
-        ))
-    } else {
-        None
-    }
-}
-
-/// Estimate SNR of a BLS detection by comparing to noise floor
-fn estimate_snr(lc: &LightCurve, period: f64, phase: f64, dur_frac: f64) -> (f64, usize) {
-    let n = lc.time.len();
-    let t0 = lc.time[0];
-
-    let mut in_transit_flux = Vec::new();
-    let mut out_transit_flux = Vec::new();
-
-    for i in 0..n {
-        let p = ((lc.time[i] - t0) % period) / period;
-        let p = if p < 0.0 { p + 1.0 } else { p };
-
-        let in_box = if phase + dur_frac <= 1.0 {
-            p >= phase && p < phase + dur_frac
-        } else {
-            p >= phase || p < (phase + dur_frac - 1.0)
-        };
-
-        if in_box {
-            in_transit_flux.push(lc.flux[i]);
-        } else {
-            out_transit_flux.push(lc.flux[i]);
-        }
-    }
-
-    if in_transit_flux.is_empty() || out_transit_flux.is_empty() {
-        return (0.0, 0);
-    }
-
-    let mean_in: f64 = in_transit_flux.iter().sum::<f64>() / in_transit_flux.len() as f64;
-    let mean_out: f64 = out_transit_flux.iter().sum::<f64>() / out_transit_flux.len() as f64;
-    let depth = mean_out - mean_in;
-
-    // Scatter of out-of-transit data
-    let variance: f64 = out_transit_flux
-        .iter()
-        .map(|&f| (f - mean_out).powi(2))
-        .sum::<f64>()
-        / (out_transit_flux.len() as f64 - 1.0);
-    let scatter = variance.sqrt();
-
-    let n_in_transit = in_transit_flux.len();
-    let snr = if scatter > 1e-10 {
-        depth / (scatter / (n_in_transit as f64).sqrt())
-    } else {
-        0.0
-    };
-
-    // Count number of transits
-    let time_span = lc.time[n - 1] - t0;
-    let n_transits = (time_span / period).floor() as usize;
-
-    (snr, n_transits.max(1))
-}
-
-// ============================================================================
-// I/O
-// ============================================================================
-
-fn load_lightcurve(path: &Path) -> Result<LightCurve> {
-    let mut rdr = ReaderBuilder::new()
-        .has_headers(true)
-        .flexible(true)
-        .trim(csv::Trim::All)
-        .from_path(path)?;
-
-    let mut time = Vec::new();
-    let mut flux = Vec::new();
-    let mut flux_err = Vec::new();
-
-    for result in rdr.records() {
-        let record = result?;
-        if record.len() < 2 {
-            continue;
-        }
-
-        let t: f64 = match record.get(0).unwrap_or("").parse() {
-            Ok(v) => v,
-            Err(_) => continue,
-        };
-        let f: f64 = match record.get(1).unwrap_or("").parse() {
-            Ok(v) => v,
-            Err(_) => continue,
-        };
-        let e: f64 = record.get(2).and_then(|s| s.parse().ok()).unwrap_or(0.001);
-
-        // Skip NaN or infinite values
-        if t.is_finite() && f.is_finite() && e.is_finite() {
-            time.push(t);
-            flux.push(f);
-            flux_err.push(e);
-        }
-    }
-
-    let filename = path
-        .file_name()
-        .unwrap_or_default()
-        .to_string_lossy()
-        .to_string();
-
-    Ok(LightCurve {
-        filename,
-        time,
-        flux,
-        flux_err,
-    })
-}
-
-fn find_csv_files(dir: &Path) -> Result<Vec<PathBuf>> {
-    let mut files = Vec::new();
-    for entry in fs::read_dir(dir).context("Cannot read input directory")? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.extension().map_or(false, |e| e == "csv") {
-            files.push(path);
-        }
-    }
-    files.sort();
-    Ok(files)
-}
-
-// ============================================================================
-// Main
-// ============================================================================
-
-fn main() -> Result<()> {
-    let cli = Cli::parse();
-
-    if cli.threads > 0 {
+    min_duration_frac: f64,
+    max_duration_frac: f64,
+    snr_threshold: f64,
+    threads: usize,
+) -> Result<()> {
+    if threads > 0 {
         rayon::ThreadPoolBuilder::new()
-            .num_threads(cli.threads)
+            .num_threads(threads)
             .build_global()
             .ok();
     }
 
-    println!("\n🔭 Exoplanet Hunter v0.1.0");
+    println!("\n🔭 Exoplanet Hunter v0.2.0");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!(
-        "  Period range:  {:.2} – {:.2} days",
-        cli.min_period, cli.max_period
-    );
-    println!("  Trial periods: {}", cli.n_periods);
-    println!("  Phase bins:    {}", cli.n_bins);
-    println!("  SNR threshold: {:.1}", cli.snr_threshold);
+    println!("  Period range:  {:.2} – {:.2} days", min_period, max_period);
+    println!("  Trial periods: {}", n_periods);
+    println!("  Phase bins:    {}", n_bins);
+    println!("  SNR threshold: {:.1}", snr_threshold);
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
-    // Generate trial periods (log-spaced for even coverage)
-    let log_min = cli.min_period.ln();
-    let log_max = cli.max_period.ln();
-    let periods: Vec<f64> = (0..cli.n_periods)
-        .map(|i| {
-            let frac = i as f64 / (cli.n_periods - 1) as f64;
-            (log_min + frac * (log_max - log_min)).exp()
-        })
-        .collect();
-
-    // Find all light curve files
-    let files = find_csv_files(&cli.input)?;
+    let periods = bls::generate_periods(min_period, max_period, n_periods);
+    let files = io::find_csv_files(input)?;
     println!("📁 Found {} light curve files\n", files.len());
 
     if files.is_empty() {
-        println!("⚠️  No CSV files found in {:?}", cli.input);
-        println!("   Expected format: time,flux,flux_err");
+        println!("⚠️  No CSV files found in {:?}", input);
         return Ok(());
     }
 
-    // Progress bar
     let pb = ProgressBar::new(files.len() as u64);
     pb.set_style(
         ProgressStyle::default_bar()
@@ -421,51 +185,37 @@ fn main() -> Result<()> {
             .progress_chars("█▉▊▋▌▍▎▏ "),
     );
 
-    // Process all light curves in parallel
     let counter = AtomicU64::new(0);
     let candidates: Vec<TransitCandidate> = files
         .par_iter()
         .filter_map(|path| {
             let done = counter.fetch_add(1, Ordering::Relaxed);
             pb.set_position(done + 1);
-            let lc = match load_lightcurve(path) {
-                Ok(lc) => lc,
-                Err(_) => return None,
-            };
+            let lc = io::load_lightcurve(path).ok()?;
 
             if lc.time.len() < 100 {
-                return None; // too few points
+                return None;
             }
 
-            // Run BLS
-            let result = bls_search(
-                &lc,
-                &periods,
-                cli.n_bins,
-                cli.min_duration_frac,
-                cli.max_duration_frac,
-            )?;
+            let result = bls::bls_search(&lc, &periods, n_bins, min_duration_frac, max_duration_frac)?;
 
-            let (period, phase, dur_frac, depth, power) = result;
+            let (snr, n_transits) = bls::estimate_snr(&lc, result.period, result.phase, result.duration_frac);
 
-            // Compute SNR
-            let (snr, n_transits) = estimate_snr(&lc, period, phase, dur_frac);
-
-            if snr >= cli.snr_threshold && n_transits >= 2 && depth > 0.0 {
-                let duration_hours = dur_frac * period * 24.0;
-                let depth_ppm = depth * 1e6; // assuming normalized flux
-                let radius_ratio = depth.abs().sqrt(); // Rp/Rs ≈ sqrt(depth)
-                let epoch = lc.time[0] + phase * period;
+            if snr >= snr_threshold && n_transits >= 2 && result.depth > 0.0 {
+                let duration_hours = result.duration_frac * result.period * 24.0;
+                let depth_ppm = result.depth * 1e6;
+                let radius_ratio = result.depth.abs().sqrt();
+                let epoch = lc.time[0] + result.phase * result.period;
 
                 Some(TransitCandidate {
                     filename: lc.filename,
-                    period_days: period,
+                    period_days: result.period,
                     epoch,
                     duration_hours,
                     depth_ppm,
                     snr,
                     n_transits,
-                    bls_power: power,
+                    bls_power: result.power,
                     radius_ratio,
                 })
             } else {
@@ -476,7 +226,6 @@ fn main() -> Result<()> {
 
     pb.finish_with_message("done!");
 
-    // Sort by SNR descending
     let mut candidates = candidates;
     candidates.sort_by(|a, b| {
         b.snr
@@ -484,7 +233,6 @@ fn main() -> Result<()> {
             .unwrap_or(std::cmp::Ordering::Equal)
     });
 
-    // Print results
     println!("\n\n🎯 CANDIDATES FOUND: {}", candidates.len());
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
@@ -512,18 +260,210 @@ fn main() -> Result<()> {
         }
     }
 
-    // Write JSON report
     let report = HuntReport {
         total_lightcurves: files.len(),
         candidates_found: candidates.len(),
-        snr_threshold: cli.snr_threshold,
-        period_range: [cli.min_period, cli.max_period],
+        snr_threshold,
+        period_range: [min_period, max_period],
         candidates,
     };
 
     let json = serde_json::to_string_pretty(&report)?;
-    fs::write(&cli.output, &json)?;
-    println!("\n📄 Report saved to {:?}\n", cli.output);
+    fs::write(output, &json)?;
+    println!("\n📄 Report saved to {:?}\n", output);
 
     Ok(())
+}
+
+// ============================================================================
+// Validate
+// ============================================================================
+
+fn run_validate(
+    input: &PathBuf,
+    lightcurves: &PathBuf,
+    output: &PathBuf,
+    threads: usize,
+) -> Result<()> {
+    if threads > 0 {
+        rayon::ThreadPoolBuilder::new()
+            .num_threads(threads)
+            .build_global()
+            .ok();
+    }
+
+    println!("\nExohuntr — Rust Validation Pipeline");
+    println!("{}", "=".repeat(55));
+
+    let data = fs::read_to_string(input)?;
+    let report: HuntReport = serde_json::from_str(&data)?;
+    println!("  Loaded {} candidates\n", report.candidates.len());
+
+    let results: Vec<validate::ValidationResult> = report
+        .candidates
+        .par_iter()
+        .filter_map(|c| {
+            let filepath = lightcurves.join(&c.filename);
+            let lc = io::load_lightcurve(&filepath).ok()?;
+
+            Some(validate::validate_candidate(
+                &lc,
+                c.period_days,
+                c.epoch,
+                c.duration_hours,
+                c.snr,
+                c.depth_ppm,
+                c.radius_ratio,
+                c.n_transits,
+                c.bls_power,
+                None, // reference period from ExoFOP handled in Python
+            ))
+        })
+        .collect();
+
+    // Output
+    fs::create_dir_all(output)?;
+    let json_path = output.join("validation_results.json");
+    let json = serde_json::to_string_pretty(&results)?;
+    fs::write(&json_path, &json)?;
+
+    // Summary
+    let high: Vec<_> = results.iter().filter(|r| r.planet_score >= 70).collect();
+    let medium: Vec<_> = results
+        .iter()
+        .filter(|r| r.planet_score >= 50 && r.planet_score < 70)
+        .collect();
+    let low: Vec<_> = results.iter().filter(|r| r.planet_score < 50).collect();
+
+    println!("{}", "=".repeat(55));
+    println!("  VALIDATION SUMMARY");
+    println!("{}", "=".repeat(55));
+    println!("  Total validated:           {}", results.len());
+    println!("  High confidence (>= 70):   {}", high.len());
+    println!("  Medium confidence (50-69):  {}", medium.len());
+    println!("  Low / false positive (< 50): {}", low.len());
+    println!("{}", "=".repeat(55));
+
+    if !high.is_empty() {
+        println!("\n  TOP VALIDATED CANDIDATES:");
+        for v in high.iter().take(10) {
+            println!(
+                "    Score={:3}  SNR={:.1}  P={:.4}d  Rp/Rs={:.4}  {}",
+                v.planet_score, v.snr, v.period_days, v.radius_ratio, v.filename
+            );
+        }
+    }
+
+    println!("\n📄 Results saved to {:?}\n", json_path);
+    Ok(())
+}
+
+// ============================================================================
+// Crossmatch
+// ============================================================================
+
+fn run_crossmatch(input: &PathBuf, catalog: &PathBuf, output: &PathBuf) -> Result<()> {
+    println!("\nExohuntr — Cross-Match Pipeline");
+    println!("{}", "=".repeat(55));
+
+    let data = fs::read_to_string(input)?;
+    let report: HuntReport = serde_json::from_str(&data)?;
+    println!("  Loaded {} candidates", report.candidates.len());
+
+    let entries = crossmatch::load_catalog(catalog)?;
+    println!("  Loaded {} catalog entries", entries.len());
+
+    let index = crossmatch::CatalogIndex::new(entries);
+
+    let candidate_tuples: Vec<(String, f64, f64)> = report
+        .candidates
+        .iter()
+        .map(|c| (c.filename.clone(), c.period_days, c.snr))
+        .collect();
+
+    let results = crossmatch::crossmatch_candidates(&candidate_tuples, &index);
+
+    let known_count = results.iter().filter(|r| r.status == "KNOWN").count();
+    let new_count = results.iter().filter(|r| r.status == "POTENTIALLY NEW").count();
+
+    // Write CSV
+    if let Some(parent) = output.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let mut wtr = csv::Writer::from_path(output)?;
+    for r in &results {
+        wtr.serialize(r)?;
+    }
+    wtr.flush()?;
+
+    println!("  Known: {} | Potentially new: {}", known_count, new_count);
+    println!("📄 Results saved to {:?}\n", output);
+    Ok(())
+}
+
+// ============================================================================
+// Main
+// ============================================================================
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    match cli.command {
+        Some(Commands::Search {
+            input,
+            output,
+            min_period,
+            max_period,
+            n_periods,
+            n_bins,
+            min_duration_frac,
+            max_duration_frac,
+            snr_threshold,
+            threads,
+        }) => run_search(
+            &input,
+            &output,
+            min_period,
+            max_period,
+            n_periods,
+            n_bins,
+            min_duration_frac,
+            max_duration_frac,
+            snr_threshold,
+            threads,
+        ),
+        Some(Commands::Validate {
+            input,
+            lightcurves,
+            output,
+            threads,
+        }) => run_validate(&input, &lightcurves, &output, threads),
+        Some(Commands::Crossmatch {
+            input,
+            catalog,
+            output,
+        }) => run_crossmatch(&input, &catalog, &output),
+        None => {
+            // Backward compatibility: if --input is provided, run search
+            if let Some(input) = cli.input {
+                run_search(
+                    &input,
+                    &cli.output,
+                    cli.min_period,
+                    cli.max_period,
+                    cli.n_periods,
+                    cli.n_bins,
+                    cli.min_duration_frac,
+                    cli.max_duration_frac,
+                    cli.snr_threshold,
+                    cli.threads,
+                )
+            } else {
+                println!("Usage: hunt <command> or hunt -i <input_dir>");
+                println!("Commands: search, validate, crossmatch");
+                println!("Run 'hunt --help' for details.");
+                Ok(())
+            }
+        }
+    }
 }

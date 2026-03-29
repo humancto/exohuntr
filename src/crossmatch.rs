@@ -63,16 +63,20 @@ impl CatalogIndex {
 
     /// Look up a candidate filename against the catalog.
     ///
-    /// Returns the first matching catalog entry, or None.
+    /// Finds the longest matching hostname contained in the filename to avoid
+    /// ambiguity (e.g., "toi_12" vs "toi_123" both matching "toi_123_tic_456").
+    /// Returns the first catalog entry for that hostname, or None.
     pub fn lookup(&self, filename: &str) -> Option<&CatalogEntry> {
         let normalized = normalize_name(filename);
-        // Try each hostname in the index
+        let mut best_match: Option<(&str, &Vec<CatalogEntry>)> = None;
         for (hostname, entries) in &self.by_hostname {
-            if normalized.contains(hostname) {
-                return entries.first();
+            if normalized.contains(hostname.as_str()) {
+                if best_match.is_none() || hostname.len() > best_match.unwrap().0.len() {
+                    best_match = Some((hostname, entries));
+                }
             }
         }
-        None
+        best_match.and_then(|(_, entries)| entries.first())
     }
 
     /// Look up by exact normalized hostname.
@@ -309,6 +313,36 @@ mod tests {
         let entries = load_catalog(&path).unwrap();
         // Should skip the bad row
         assert!(entries.len() >= 2);
+    }
+
+    #[test]
+    fn test_lookup_hostname_collision() {
+        // Overlapping hostnames: toi_12 vs toi_123 — should match longest
+        let entries = vec![
+            CatalogEntry {
+                pl_name: "TOI-12 b".to_string(),
+                hostname: "TOI-12".to_string(),
+                pl_orbper: Some(1.0),
+                pl_rade: Some(1.0),
+            },
+            CatalogEntry {
+                pl_name: "TOI-123 b".to_string(),
+                hostname: "TOI-123".to_string(),
+                pl_orbper: Some(2.0),
+                pl_rade: Some(2.0),
+            },
+        ];
+        let index = CatalogIndex::new(entries);
+
+        // Should match TOI-123, not TOI-12
+        let result = index.lookup("TOI_123_TIC_456.csv");
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().pl_name, "TOI-123 b");
+
+        // Should match TOI-12 (no ambiguity)
+        let result = index.lookup("TOI_12_TIC_789.csv");
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().pl_name, "TOI-12 b");
     }
 
     #[test]

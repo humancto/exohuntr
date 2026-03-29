@@ -166,7 +166,7 @@ pub fn estimate_snr(lc: &LightCurve, period: f64, phase: f64, dur_frac: f64) -> 
         }
     }
 
-    if in_transit_flux.is_empty() || out_transit_flux.is_empty() {
+    if in_transit_flux.is_empty() || out_transit_flux.len() < 2 {
         return (0.0, 0);
     }
 

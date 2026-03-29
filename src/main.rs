@@ -299,12 +299,20 @@ fn run_validate(
     let report: HuntReport = serde_json::from_str(&data)?;
     println!("  Loaded {} candidates\n", report.candidates.len());
 
+    let skipped = std::sync::atomic::AtomicU64::new(0);
     let results: Vec<validate::ValidationResult> = report
         .candidates
         .par_iter()
         .filter_map(|c| {
             let filepath = lightcurves.join(&c.filename);
-            let lc = io::load_lightcurve(&filepath).ok()?;
+            let lc = match io::load_lightcurve(&filepath) {
+                Ok(lc) => lc,
+                Err(e) => {
+                    eprintln!("  Warning: skipping {}: {}", c.filename, e);
+                    skipped.fetch_add(1, Ordering::Relaxed);
+                    return None;
+                }
+            };
 
             Some(validate::validate_candidate(
                 &lc,
@@ -335,10 +343,14 @@ fn run_validate(
         .collect();
     let low: Vec<_> = results.iter().filter(|r| r.planet_score < 50).collect();
 
+    let n_skipped = skipped.load(Ordering::Relaxed);
     println!("{}", "=".repeat(55));
     println!("  VALIDATION SUMMARY");
     println!("{}", "=".repeat(55));
     println!("  Total validated:           {}", results.len());
+    if n_skipped > 0 {
+        println!("  Skipped (load errors):     {}", n_skipped);
+    }
     println!("  High confidence (>= 70):   {}", high.len());
     println!("  Medium confidence (50-69):  {}", medium.len());
     println!("  Low / false positive (< 50): {}", low.len());

@@ -174,7 +174,12 @@ pub fn test_secondary_eclipse(
         return None;
     }
 
-    let depth_ratio = secondary_depth / primary_depth;
+    // Negative secondary depth means no dip — treat as no secondary eclipse
+    let depth_ratio = if secondary_depth < 0.0 {
+        0.0
+    } else {
+        secondary_depth / primary_depth
+    };
     let passed = depth_ratio < 0.3;
 
     Some(SecondaryEclipseResult {
@@ -223,7 +228,7 @@ pub fn test_transit_shape(
         return None;
     }
 
-    transit_points.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+    transit_points.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
 
     let n = transit_points.len();
     let third = n / 3;
@@ -263,6 +268,9 @@ pub fn test_transit_shape(
 /// the same underlying signal.
 pub fn test_period_agreement(our_period: f64, reference_period: f64) -> Option<PeriodAgreementResult> {
     if !reference_period.is_finite() || reference_period <= 0.0 {
+        return None;
+    }
+    if !our_period.is_finite() || our_period <= 0.0 {
         return None;
     }
 

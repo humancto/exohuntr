@@ -1,7 +1,6 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/candidates-197-22d3ee?style=for-the-badge&labelColor=0a1128" alt="197 candidates">
-  <img src="https://img.shields.io/badge/top_SNR-121.7-34d399?style=for-the-badge&labelColor=0a1128" alt="Top SNR 121.7">
-  <img src="https://img.shields.io/badge/rust-blazing_fast-fb923c?style=for-the-badge&logo=rust&labelColor=0a1128" alt="Rust">
+  <img src="https://img.shields.io/badge/validated_candidates-3-22d3ee?style=for-the-badge&labelColor=0a1128" alt="3 validated candidates">
+  <img src="https://img.shields.io/badge/detections-197-64748b?style=for-the-badge&labelColor=0a1128" alt="197 detections">
   <img src="https://img.shields.io/badge/data-NASA_TESS-a78bfa?style=for-the-badge&labelColor=0a1128" alt="NASA TESS">
   <img src="https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge&labelColor=0a1128" alt="MIT License">
 </p>
@@ -9,260 +8,234 @@
 <h1 align="center">Exohuntr</h1>
 
 <p align="center">
-  <strong>We pointed a laptop at NASA's data and found 197 exoplanet candidates.</strong><br>
-  <em>Rust-powered BLS transit detection on real TESS satellite data.</em>
+  <strong>An open-source transit detection and validation pipeline for NASA TESS data.</strong><br>
+  <em>BLS detection in Rust, false-positive validation in Python, applied to 200 unconfirmed TESS Objects of Interest.</em>
 </p>
 
 <p align="center">
-  <a href="https://humancto.github.io/exohuntr">View Live Results</a> &middot;
-  <a href="#quick-start">Quick Start</a> &middot;
-  <a href="#results">Results</a> &middot;
-  <a href="#how-it-works">How It Works</a>
+  <a href="https://humancto.github.io/exohuntr">Interactive Results</a> &middot;
+  <a href="#validated-candidates">Validated Candidates</a> &middot;
+  <a href="#methodology">Methodology</a> &middot;
+  <a href="#reproducing-this-work">Reproducing This Work</a>
 </p>
 
 ---
 
-## What Happened
+## Summary
 
-We downloaded 200 light curves from NASA's TESS satellite &mdash; specifically **unconfirmed planet candidates** (TOIs) that haven't been fully vetted yet. We ran them through a parallelized BLS transit detection engine written in Rust. In under 30 seconds, it scanned 15,000 trial orbital periods per star and found **197 transit signals** above our detection threshold.
+Exohuntr is an end-to-end exoplanet transit detection pipeline. It downloads TESS light curves from NASA's MAST archive, runs a Box-fitting Least Squares (BLS) period search ([Kovacs, Zucker & Mazeh 2002](https://ui.adsabs.harvard.edu/abs/2002A%26A...391..369K)) implemented in Rust, and validates candidate signals through a suite of false-positive tests drawn from standard community practices.
 
-**23 of those have SNR > 50.** The strongest signal (TOI 159.01) has an SNR of **121.7** with 6 clean transits &mdash; textbook planet signature.
+Applied to 200 unconfirmed TESS Objects of Interest (TOIs), the pipeline:
+
+1. **Detected 197 transit signals** above SNR &ge; 6.0
+2. **Validated all detections** with 5 false-positive tests (odd/even depth, secondary eclipse, transit morphology, period agreement, radius ratio)
+3. **Identified 17 high-confidence candidates** (planet likelihood score &ge; 70)
+4. **Deep-validated the top 3** with centroid analysis, Gaia DR3 source checks, Transit Least Squares ([Hippke & Heller 2019](https://ui.adsabs.harvard.edu/abs/2019A%26A...623A..39H)), and multi-sector secondary eclipse searches
+
+**One candidate &mdash; TOI 133.01 &mdash; passes all deep-validation tests**, consistent with a 1.9 R&#8853; super-Earth on an 8.2-day orbit.
+
+> **Note:** These are existing TOIs from the TESS pipeline. This work provides independent detection and validation, not new discoveries. Confirmation requires ground-based follow-up observations.
+
+---
+
+## Validated Candidates
+
+After deep validation (centroid analysis, Gaia DR3 contamination check, TLS independent confirmation, multi-sector secondary eclipse search), three candidates remain as physically plausible planet signals:
+
+| Target                         | Period   | Rp (R&#8853;) | TLS SDE  | Centroid | Gaia             | Sec. Eclipse     | Assessment    |
+| ------------------------------ | -------- | ------------- | -------- | -------- | ---------------- | ---------------- | ------------- |
+| **TOI 133.01** / TIC 219338557 | 8.2065 d | **1.9**       | **28.4** | Pass     | Clear            | Pass             | **Strong**    |
+| **TOI 155.01** / TIC 129637892 | 5.4504 d | **5.3**       | **20.1** | Pass     | Clear            | Marginal&dagger; | **Strong**    |
+| **TOI 210.01** / TIC 141608198 | 8.9884 d | **2.2**       | **7.1**  | Pass     | 1 faint neighbor | Marginal&dagger; | **Promising** |
+
+<sup>&dagger; Secondary eclipse depths of 0.002&ndash;0.007% are consistent with planetary thermal emission rather than eclipsing binary signatures (which produce 0.1&ndash;10% depths).</sup>
+
+**Pipeline validation:** TOI 125.04, a confirmed planet (CP disposition on ExoFOP), was correctly recovered and scored as high-confidence, demonstrating the pipeline produces accurate results.
 
 <p align="center">
-  <img src="results/plots/phase_fold_TOI_159.01_TIC_394657039.png" width="700" alt="TOI 159.01 - SNR 121.7 - Our strongest candidate">
+  <img src="results/deep_analysis/tls_TOI_133_01.png" width="800" alt="TOI 133.01 — TLS periodogram and phase-folded transit">
   <br>
-  <em>TOI 159.01 / TIC 394657039 &mdash; Period: 3.76 days, 6 transits, SNR 121.7</em>
+  <em>TOI 133.01 &mdash; Transit Least Squares analysis. Left: periodogram peaking at P=8.200d (SDE=28.4). Right: phase-folded light curve showing transit.</em>
 </p>
 
----
+### Detection Overview
 
-## Results
+From the initial BLS search of 200 TOIs:
 
-| Metric                          | Value                   |
-| ------------------------------- | ----------------------- |
-| Light curves analyzed           | 200                     |
-| Transit candidates found        | **197**                 |
-| Candidates with SNR > 50        | **23**                  |
-| Candidates with SNR > 20        | **98**                  |
-| Candidates with 3+ transits     | **101**                 |
-| Period range                    | 0.50 &ndash; 13.94 days |
-| Processing time (Rust, 8 cores) | **< 30 seconds**        |
-
-### Top 5 Candidates
-
-| Rank | Target                     | Period    | SNR       | Transits |
-| ---- | -------------------------- | --------- | --------- | -------- |
-| 1    | TOI 159.01 / TIC 394657039 | 3.7624 d  | **121.7** | 6        |
-| 2    | TOI 168.01 / TIC 369457671 | 11.9500 d | **112.0** | 2        |
-| 3    | TOI 507.01 / TIC 348538431 | 0.8993 d  | **89.3**  | 27       |
-| 4    | TOI 170.01 / TIC 394698182 | 3.7127 d  | **74.6**  | 6        |
-| 5    | TOI 369.01 / TIC 175482273 | 5.4638 d  | **71.0**  | 4        |
+| Metric                                                  | Value                   |
+| ------------------------------------------------------- | ----------------------- |
+| Light curves analyzed                                   | 200                     |
+| Transit signals detected (SNR &ge; 6.0)                 | 197                     |
+| High-confidence after 5-test validation (score &ge; 70) | 17                      |
+| Deep-validated with TLS + centroid + Gaia               | **3**                   |
+| Period range                                            | 0.50 &ndash; 13.94 days |
 
 <p align="center">
-  <img src="results/plots/candidate_overview.png" width="900" alt="Candidate overview - Period vs Depth, Radius Ratio, SNR distribution">
+  <img src="results/plots/candidate_overview.png" width="800" alt="Candidate overview — Period vs Depth, Radius Ratio, SNR distribution">
   <br>
-  <em>Left: Period vs transit depth. Center: Period vs planet/star radius ratio. Right: SNR distribution (median 19.8).</em>
+  <em>Left: Period vs transit depth. Center: Period vs planet/star radius ratio. Right: SNR distribution across all 197 detections.</em>
 </p>
 
-Full interactive results table and all 30 phase-fold plots: **[humancto.github.io/exohuntr](https://humancto.github.io/exohuntr)**
+Full interactive results: **[humancto.github.io/exohuntr](https://humancto.github.io/exohuntr)**
 
 ---
 
-## Quick Start
+## Methodology
 
-```bash
-# Clone
-git clone https://github.com/humancto/exohuntr.git
-cd exohuntr
+### Pipeline Architecture
 
-# One command does everything: install deps, download data, detect, analyze
-make all
-
-# Or target unconfirmed candidates (best chance at real discovery)
-make download-candidates
-make hunt
-make analyze
 ```
+  ┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+  │  NASA MAST  │───>│   BLS        │───>│  Validation  │───>│    Deep      │
+  │  (Python)   │    │   (Rust)     │    │  (Python)    │    │  Validation  │
+  │             │    │              │    │              │    │  (Python)    │
+  │ lightkurve  │    │ 15K trial    │    │ 5 false-     │    │ Centroid     │
+  │ TESS TOIs   │    │ periods per  │    │ positive     │    │ Gaia DR3     │
+  │ from ExoFOP │    │ star, SNR    │    │ tests per    │    │ TLS          │
+  │             │    │ threshold    │    │ candidate    │    │ Multi-sector │
+  └─────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+        │                  │                   │                    │
+   data/lightcurves/  candidates.json  VALIDATION_REPORT.md  DEEP_ANALYSIS.md
+```
+
+### Step 1: BLS Transit Detection
+
+The BLS algorithm ([Kovacs, Zucker & Mazeh 2002](https://ui.adsabs.harvard.edu/abs/2002A%26A...391..369K)) searches for periodic box-shaped dips in stellar light curves:
+
+1. Generate 15,000 log-spaced trial periods (0.5&ndash;20 days)
+2. Phase-fold the light curve at each trial period
+3. Divide into 200 phase bins
+4. Slide a flat-bottomed box across all phases and widths
+5. Compute the BLS power statistic; retain candidates with SNR &ge; 6.0 and &ge; 2 transits
+
+The BLS engine is implemented in Rust using [Rayon](https://github.com/rayon-rs/rayon) for parallel processing across stars.
+
+### Step 2: False-Positive Validation
+
+Each detection is subjected to 5 tests, following standard community vetting practices and NASA's SPOC Data Validation pipeline ([Twicken et al. 2018](https://ui.adsabs.harvard.edu/abs/2018PASP..130f4502T)):
+
+| Test                       | Method                                 | Passing criterion                |
+| -------------------------- | -------------------------------------- | -------------------------------- |
+| **Odd/even transit depth** | Compare depths of alternating transits | Depths match within 3&sigma;     |
+| **Secondary eclipse**      | Search for dip at orbital phase 0.5    | No significant dip detected      |
+| **Transit morphology**     | Measure V-shape vs U-shape             | Flat-bottomed (U-shaped) transit |
+| **Period agreement**       | Compare BLS period to TESS pipeline    | Match within 1%                  |
+| **Radius ratio**           | Compute Rp/Rs from transit depth       | Rp/Rs &lt; 0.3                   |
+
+Results: 17 high-confidence (&ge; 70), 114 medium (50&ndash;69), 66 low (&lt; 50).
+
+### Step 3: Deep Validation
+
+The top 3 physically plausible candidates (smallest Rp) undergo additional tests:
+
+| Test                               | Reference                                                                       | Purpose                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| **Centroid offset (TPF)**          | Twicken et al. 2018                                                             | Verify transit occurs on target star                    |
+| **Gaia DR3 source check**          | Furlan et al. 2017                                                              | Rule out contaminating neighbors in aperture            |
+| **Transit Least Squares**          | [Hippke & Heller 2019](https://ui.adsabs.harvard.edu/abs/2019A%26A...623A..39H) | Confirm signal with limb-darkened transit model         |
+| **Multi-sector secondary eclipse** | Shporer et al. 2017                                                             | Rule out self-luminous companion with extended baseline |
+
+---
+
+## Limitations and Caveats
+
+- **These are not new discoveries.** All targets are existing TOIs from the TESS pipeline. This work provides independent detection and validation using a separate codebase.
+- **These are not confirmed planets.** Transit detection alone cannot confirm a planet. Confirmation requires radial velocity measurements, high-resolution imaging, and/or statistical validation (e.g., [VESPA](https://ui.adsabs.harvard.edu/abs/2012ApJ...761....6M)).
+- **Rp estimates are approximate.** Planet radius depends on stellar parameters from the TESS Input Catalog, which carry uncertainties of 5&ndash;20%.
+- **Most detections are likely false positives.** Of 197 signals, many with Rp/Rs &gt; 1.0 are eclipsing binaries or blended sources. This is expected and normal in blind transit searches.
+- **Centroid analysis is limited.** We compute flux-weighted centroids from TPF pixel data rather than using the full SPOC centroid pipeline, which includes PRF-fitted positions.
+
+---
+
+## Next Steps
+
+### For this pipeline
+
+- [ ] Run on less-studied TESS sectors (80&ndash;96) to target genuinely unsearched stars
+- [ ] Download all available sectors for TOI 210.01 (61 sectors) to resolve the marginal secondary eclipse
+- [ ] Implement proper PRF-fitted centroid analysis using Target Pixel Files
+- [ ] Add iterative BLS with signal subtraction for multi-planet system detection
+- [ ] Integrate with NASA's [EXOTIC](https://github.com/rzellem/EXOTIC) citizen science pipeline
+
+### For the validated candidates
+
+- [ ] Submit independent analysis to [ExoFOP-TESS](https://exofop.ipac.caltech.edu/tess/) as supporting observations
+- [ ] Cross-reference with community follow-up observations already on ExoFOP
+- [ ] Prepare a methodology note for [RNAAS](https://journals.aas.org/research-notes-of-the-aas/) (Research Notes of the AAS)
+
+### For broader impact
+
+- [ ] Contact the [Planet Hunters TESS](https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess) team regarding complementary automated + visual survey approaches
+- [ ] Explore statistical validation frameworks (VESPA, TRICERATOPS) for the strongest candidates
+
+---
+
+## Reproducing This Work
 
 ### Requirements
 
 - **Rust** 1.75+ &mdash; `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- **Python** 3.10+ &mdash; `pip install lightkurve astroquery pandas numpy matplotlib tqdm`
+- **Python** 3.10+ &mdash; `pip install lightkurve astroquery pandas numpy matplotlib tqdm scipy transitleastsquares`
 
-Or just run `bash scripts/setup.sh` to install everything.
+### Run the full pipeline
 
----
+```bash
+git clone https://github.com/humancto/exohuntr.git
+cd exohuntr
 
-## How It Works
+# Download unconfirmed TOI light curves from NASA MAST
+python python/download_lightcurves.py --candidates-only --limit 200 --catalog
 
-```
-                    EXOHUNTR PIPELINE
+# Build and run BLS transit detection
+cargo build --release
+./target/release/hunt -i data/lightcurves -o candidates.json --snr-threshold 6.0
 
-  ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-  │  NASA MAST  │───>│  Rust BLS    │───>│  Analysis   │
-  │  (Python)   │    │  (Rayon)     │    │  (Python)   │
-  │             │    │              │    │             │
-  │ Download    │    │ 15K periods  │    │ Phase-fold  │
-  │ light       │    │ per star     │    │ plots       │
-  │ curves      │    │ parallel     │    │ Cross-match │
-  │ from TESS   │    │ scanning     │    │ 6153 known  │
-  │             │    │              │    │ exoplanets  │
-  └─────────────┘    └──────────────┘    └─────────────┘
-        │                  │                   │
-   data/lightcurves/  candidates.json   results/REPORT.md
-```
+# Analyze: phase-fold plots, cross-matching, report
+python python/analyze_candidates.py --input candidates.json --lightcurves data/lightcurves/ --crossmatch --top-n 30
 
-### The Transit Method
+# Validate: 5 false-positive tests on all candidates
+python python/validate_candidates.py
 
-When a planet passes in front of its host star, it blocks a tiny fraction of starlight. This creates a periodic dip in the star's brightness:
-
-```
-Brightness ──────╲        ╱──────    The dip depth tells us the
-                  ╲      ╱           planet's size relative to
-                   ╲────╱            the star: depth ~ (Rp/Rs)^2
-                     ▲
-                  transit             A Jupiter-sized planet blocks ~1%
-                                     An Earth-sized planet blocks ~0.01%
+# Deep analysis: centroid, Gaia, TLS, multi-sector on top candidates
+python python/deep_analysis.py
 ```
 
-### BLS (Box-fitting Least Squares)
+Or use `make all` to run the first three steps automatically.
 
-The core algorithm ([Kovacs, Zucker & Mazeh 2002](https://ui.adsabs.harvard.edu/abs/2002A%26A...391..369K)):
-
-1. **Generate trial periods** &mdash; 15,000 log-spaced periods from 0.5 to 20 days
-2. **Phase-fold** &mdash; For each period, fold the time series so transits stack up
-3. **Bin** &mdash; Divide into 200 phase bins for noise reduction
-4. **Box scan** &mdash; Slide a flat-bottomed box across all phases and widths
-5. **Score** &mdash; Compute the BLS power statistic (signal strength vs noise)
-6. **Threshold** &mdash; Keep candidates with SNR >= 6.0 and 2+ transits
-
-### Why Rust?
-
-BLS is compute-heavy: **15,000 periods x 200 bins x 8 box widths = 24 million** fits per star. For 200 stars, that's ~5 billion operations.
-
-```
-Benchmark (200 stars, 15K periods):
-  Python (numpy)  ........  ~25 minutes
-  Rust (1 core)   ........  ~2 minutes
-  Rust (8 cores)  ........  ~25 seconds
-```
-
-The Rust engine uses [Rayon](https://github.com/rayon-rs/rayon) for data-parallel processing. Each star is processed independently on a separate thread. Release builds use LTO and max optimization for additional speedup.
-
----
-
-## Project Structure
+### Project Structure
 
 ```
 exohuntr/
-├── src/main.rs                     # Rust BLS engine (parallel transit detection)
+├── src/main.rs                         # Rust BLS transit detection engine
 ├── python/
-│   ├── download_lightcurves.py     # Fetch TESS/Kepler data from NASA MAST
-│   └── analyze_candidates.py       # Phase-fold plots, cross-matching, reports
-├── docs/                           # GitHub Pages site (interactive results)
-│   ├── index.html                  # Landing page with candidate table & gallery
-│   ├── candidates.json             # Detection results for the web UI
-│   └── *.png                       # Phase-fold plot images
+│   ├── download_lightcurves.py         # TESS light curve download from MAST
+│   ├── analyze_candidates.py           # Phase-fold plots, cross-matching, reports
+│   ├── validate_candidates.py          # 5-test false-positive validation
+│   └── deep_analysis.py               # Centroid, Gaia, TLS, multi-sector validation
 ├── results/
-│   ├── plots/                      # All generated visualizations
-│   ├── REPORT.md                   # Full analysis report
-│   └── crossmatch_results.csv      # Known planet cross-match results
-├── candidates.json                 # Raw BLS detection output
-├── Cargo.toml                      # Rust dependencies
-├── Makefile                        # Pipeline automation
-├── CLAUDE.md                       # Claude Code autonomous instructions
-└── scripts/setup.sh                # One-command setup
+│   ├── plots/                          # Phase-folded light curve plots
+│   ├── deep_analysis/                  # TLS, centroid, secondary eclipse plots
+│   ├── REPORT.md                       # Detection summary
+│   ├── VALIDATION_REPORT.md            # Scored validation results
+│   └── DEEP_ANALYSIS.md               # Deep validation milestone report
+├── docs/                               # GitHub Pages interactive results
+├── candidates.json                     # Raw BLS detection output
+├── Cargo.toml                          # Rust dependencies
+└── Makefile                            # Pipeline automation
 ```
-
----
-
-## Advanced Usage
-
-### Hunt a specific TESS sector
-
-```bash
-# Sector 72 (200-second cadence, less searched)
-python python/download_lightcurves.py --mission tess --sector 72 --limit 500
-
-# Run detection
-./target/release/hunt -i data/lightcurves -o candidates.json --snr-threshold 6.0
-```
-
-### Aggressive search (more candidates, more false positives)
-
-```bash
-./target/release/hunt -i data/lightcurves -o candidates.json \
-  --snr-threshold 4.5 \
-  --n-periods 25000 \
-  --min-period 0.3 \
-  --max-period 40.0
-```
-
-### Analyze a specific star
-
-```bash
-python -c "
-import lightkurve as lk
-lc = lk.search_lightcurve('TIC 261136679', mission='TESS').download()
-lc = lc.remove_nans().remove_outliers().normalize()
-lc.to_csv('data/lightcurves/custom_target.csv')
-"
-./target/release/hunt -i data/lightcurves -o candidates.json
-```
-
-### Use Claude Code
-
-```bash
-claude  # Launch in the project directory
-
-# Then:
-> "Hunt for planets in the latest TESS data"
-> "Analyze TIC 261136679, I think there's something there"
-> "Download 500 unconfirmed TOIs and run the full pipeline"
-```
-
----
-
-## Can You Actually Discover a Planet?
-
-**Yes.** Citizen scientists have discovered confirmed exoplanets through programs like [Planet Hunters TESS](https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess). The path:
-
-1. Download light curves from less-studied TESS sectors (70+)
-2. Run BLS detection &mdash; find transit signals
-3. Cross-match against known catalogs to identify **new** signals
-4. Validate: rule out eclipsing binaries, centroid shifts, systematic noise
-5. Submit to [ExoFOP](https://exofop.ipac.caltech.edu/tess/) for community vetting
-6. If confirmed by follow-up observations, you helped discover a planet
-
-> **Important:** Our 197 candidates are **detections**, not confirmed planets. They need eclipsing binary checks, centroid analysis, secondary eclipse searches, and independent confirmation before any discovery claim. The Rp/Rs values > 1.0 suggest many are likely eclipsing binaries or blended signals rather than planets &mdash; which is expected and normal in a blind search. The interesting ones are those with small Rp/Rs and clean phase-fold shapes.
-
-### Best targets for real discovery
-
-TESS Sectors 70&ndash;96 are the sweet spot: 200-second cadence data, fully available on MAST, and less thoroughly searched than early sectors. Use `--candidates-only` to pull unconfirmed TOIs directly.
-
----
-
-## Contributing
-
-PRs welcome. Some ideas:
-
-- [ ] GPU-accelerated BLS (CUDA/Metal)
-- [ ] False positive filters (V-shape detection, secondary eclipse check, centroid analysis)
-- [ ] Multi-planet system detection (iterative BLS with signal subtraction)
-- [ ] Web dashboard with real-time search
-- [ ] Integration with NASA's [EXOTIC](https://github.com/rzellem/EXOTIC) citizen science pipeline
-- [ ] Radial velocity simulation for mass estimation
-- [ ] Automated ExoFOP submission for validated candidates
 
 ---
 
 ## References
 
-- Kovacs, Zucker & Mazeh (2002). [A box-fitting algorithm in the search for periodic transits](https://ui.adsabs.harvard.edu/abs/2002A%26A...391..369K). A&A, 391, 369-377.
-- Ricker et al. (2015). [Transiting Exoplanet Survey Satellite (TESS)](https://ui.adsabs.harvard.edu/abs/2015JATIS...1a4003R). Journal of Astronomical Telescopes, Instruments, and Systems.
-- [lightkurve](https://docs.lightkurve.org/) &mdash; Python package for Kepler & TESS data analysis
-- [ExoFOP-TESS](https://exofop.ipac.caltech.edu/tess/) &mdash; Community follow-up observing program
-- [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/) &mdash; Confirmed exoplanet catalog
+- Kovacs, Zucker & Mazeh (2002). [A box-fitting algorithm in the search for periodic transits](https://ui.adsabs.harvard.edu/abs/2002A%26A...391..369K). _A&A_, 391, 369&ndash;377.
+- Hippke & Heller (2019). [Optimized transit detection algorithm to search for periodic transits of small planets](https://ui.adsabs.harvard.edu/abs/2019A%26A...623A..39H). _A&A_, 623, A39.
+- Twicken et al. (2018). [Kepler Data Validation I &mdash; Architecture, Diagnostic Tests, and Data Products](https://ui.adsabs.harvard.edu/abs/2018PASP..130f4502T). _PASP_, 130, 064502.
+- Ricker et al. (2015). [Transiting Exoplanet Survey Satellite (TESS)](https://ui.adsabs.harvard.edu/abs/2015JATIS...1a4003R). _JATIS_, 1, 014003.
+- Furlan et al. (2017). [Kepler Follow-up Observation Program. II](https://ui.adsabs.harvard.edu/abs/2017AJ....153...71F). _AJ_, 153, 71.
+- [lightkurve](https://docs.lightkurve.org/) &mdash; Python package for Kepler and TESS time series analysis.
+- [ExoFOP-TESS](https://exofop.ipac.caltech.edu/tess/) &mdash; Community follow-up observing program for TESS.
+- [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/) &mdash; Confirmed and candidate exoplanet catalog.
 
 ## License
 
@@ -271,7 +244,6 @@ MIT
 ---
 
 <p align="center">
-  <strong>Built with Rust, Python, and Claude Code.</strong><br>
-  Data from NASA TESS via MAST.<br><br>
-  <a href="https://humancto.github.io/exohuntr">View Live Results</a>
+  Data from NASA TESS via MAST.<br>
+  <a href="https://humancto.github.io/exohuntr">View Interactive Results</a>
 </p>

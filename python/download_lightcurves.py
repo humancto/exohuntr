@@ -14,6 +14,8 @@ Requirements:
     pip install lightkurve astroquery pandas numpy tqdm
 """
 
+from __future__ import annotations
+
 import argparse
 import os
 import sys
@@ -24,7 +26,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def setup_dirs(output_dir: str) -> Path:
@@ -33,7 +36,7 @@ def setup_dirs(output_dir: str) -> Path:
     return out
 
 
-def download_tess_sector(sector: int, output_dir: Path, limit: int = 200, cadence: str = "short"):
+def download_tess_sector(sector: int, output_dir: Path, limit: int = 200, cadence: str = "short") -> int:
     """Download TESS light curves for a given sector."""
     import lightkurve as lk
 
@@ -78,14 +81,15 @@ def download_tess_sector(sector: int, output_dir: Path, limit: int = 200, cadenc
             df.to_csv(filepath, index=False)
             downloaded += 1
 
-        except Exception as e:
-            continue  # skip problematic targets
+        except (OSError, ConnectionError, ValueError, RuntimeError) as e:
+            print(f"   Warning: skipping {result.target_name}: {e}")
+            continue
 
     print(f"   ✅ Downloaded {downloaded} light curves to {output_dir}/")
     return downloaded
 
 
-def download_toi_candidates(output_dir: Path, limit: int = 500):
+def download_toi_candidates(output_dir: Path, limit: int = 500) -> int:
     """Download light curves for TESS Objects of Interest (unconfirmed candidates).
 
     These are the most interesting targets — planets waiting to be confirmed!
@@ -143,14 +147,15 @@ def download_toi_candidates(output_dir: Path, limit: int = 500):
             df.to_csv(filepath, index=False)
             downloaded += 1
 
-        except Exception:
+        except (OSError, ConnectionError, ValueError, RuntimeError) as e:
+            print(f"   Warning: skipping TIC {int(row.get('TIC ID', 0))}: {e}")
             continue
 
     print(f"   ✅ Downloaded {downloaded} TOI light curves to {output_dir}/")
     return downloaded
 
 
-def download_kepler_kois(output_dir: Path, limit: int = 200):
+def download_kepler_kois(output_dir: Path, limit: int = 200) -> int:
     """Download Kepler Objects of Interest — the original planet hunting dataset."""
     import lightkurve as lk
 
@@ -168,7 +173,7 @@ def download_kepler_kois(output_dir: Path, limit: int = 200):
         )
         koi_ids = [f"KIC {kid}" for kid in kois["kepid"][:limit]]
         print(f"   Found {len(koi_ids)} KOI candidates")
-    except Exception:
+    except (OSError, ConnectionError) as e:
         print("   Using fallback KOI list...")
         koi_ids = [f"KIC {kid}" for kid in [8191672, 3558849, 5728139, 10797460, 7040629]]
 
@@ -200,14 +205,15 @@ def download_kepler_kois(output_dir: Path, limit: int = 200):
             df.to_csv(filepath, index=False)
             downloaded += 1
 
-        except Exception:
+        except (OSError, ConnectionError, ValueError, RuntimeError) as e:
+            print(f"   Warning: skipping {kic}: {e}")
             continue
 
     print(f"   ✅ Downloaded {downloaded} KOI light curves to {output_dir}/")
     return downloaded
 
 
-def download_exoplanet_catalog(output_dir: Path):
+def download_exoplanet_catalog(output_dir: Path) -> None:
     """Download the full confirmed exoplanet catalog from NASA for cross-referencing."""
     print("\n📊 Downloading NASA confirmed exoplanet catalog...")
 
@@ -228,7 +234,7 @@ def download_exoplanet_catalog(output_dir: Path):
         print("   You can manually download from: https://exoplanetarchive.ipac.caltech.edu/")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="🔭 Download light curves for exoplanet hunting"
     )

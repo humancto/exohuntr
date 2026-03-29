@@ -11,6 +11,7 @@ Steps:
 
 Targets: TOI 133.01, TOI 210.01, TOI 155.01 (top 3 plausible planet candidates)
 """
+from __future__ import annotations
 
 import os
 import sys
@@ -22,7 +23,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+warnings.filterwarnings('ignore', message='.*overflow.*')
 
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'results')
 DEEP_DIR = os.path.join(RESULTS_DIR, 'deep_analysis')
@@ -35,17 +38,15 @@ TARGETS = [
     {"toi": "TOI 155.01", "tic": "TIC 129637892", "tic_id": 129637892, "period": 5.4504, "rp_earth": 5.3, "snr": 44.3},
 ]
 
-findings = {}
 
-
-def log(msg):
+def log(msg: str) -> None:
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
 
 # ===========================================================================
 # STEP 1: Target Pixel Files + Centroid Analysis
 # ===========================================================================
-def step1_centroid_analysis():
+def step1_centroid_analysis(findings: dict) -> None:
     log("STEP 1: Downloading TPFs and running centroid analysis...")
     import lightkurve as lk
 
@@ -166,7 +167,9 @@ def step1_centroid_analysis():
             axes[2].legend(fontsize=8)
 
             plt.tight_layout()
-            plot_path = os.path.join(DEEP_DIR, f'centroid_{name.replace(" ", "_").replace(".", "_")}.png')
+            safe_name = name.replace(" ", "_").replace(".", "_")
+            safe_name = os.path.basename(safe_name)  # strip any directory components
+            plot_path = os.path.join(DEEP_DIR, f'centroid_{safe_name}.png')
             plt.savefig(plot_path, dpi=150, bbox_inches='tight')
             plt.close()
             log(f"  Saved centroid plot: {plot_path}")
@@ -179,7 +182,7 @@ def step1_centroid_analysis():
 # ===========================================================================
 # STEP 2: Gaia DR3 Nearby Source Check
 # ===========================================================================
-def step2_gaia_query():
+def step2_gaia_query(findings: dict) -> None:
     log("STEP 2: Querying Gaia DR3 for nearby contaminating sources...")
     from astroquery.mast import Catalogs
     from astroquery.gaia import Gaia
@@ -212,19 +215,19 @@ def step2_gaia_query():
             search_radius = 120  # arcsec = 2 arcmin
 
             log(f"  Querying Gaia DR3 within {search_radius}\" of target...")
-            query = f"""
-            SELECT source_id, ra, dec, phot_g_mean_mag, parallax,
-                   DISTANCE(
-                     POINT('ICRS', ra, dec),
-                     POINT('ICRS', {ra}, {dec})
-                   ) AS ang_sep
-            FROM gaiadr3.gaia_source
-            WHERE DISTANCE(
-                    POINT('ICRS', ra, dec),
-                    POINT('ICRS', {ra}, {dec})
-                  ) < {search_radius / 3600.0}
-            ORDER BY ang_sep ASC
-            """
+            # Sanitize numeric inputs for ADQL (TAP doesn't support parameterized queries)
+            safe_ra = float(ra)
+            safe_dec = float(dec)
+            safe_radius = float(search_radius) / 3600.0
+            query = (
+                "SELECT source_id, ra, dec, phot_g_mean_mag, parallax,"
+                " DISTANCE(POINT('ICRS', ra, dec),"
+                f" POINT('ICRS', {safe_ra:.6f}, {safe_dec:.6f})) AS ang_sep"
+                " FROM gaiadr3.gaia_source"
+                " WHERE DISTANCE(POINT('ICRS', ra, dec),"
+                f" POINT('ICRS', {safe_ra:.6f}, {safe_dec:.6f})) < {safe_radius:.8f}"
+                " ORDER BY ang_sep ASC"
+            )
 
             job = Gaia.launch_job(query)
             results = job.get_results()
@@ -277,7 +280,7 @@ def step2_gaia_query():
 # ===========================================================================
 # STEP 3: Check NASA SPOC DV Reports on MAST
 # ===========================================================================
-def step3_dv_reports():
+def step3_dv_reports(findings: dict) -> None:
     log("STEP 3: Checking NASA SPOC Data Validation reports on MAST...")
     from astroquery.mast import Observations
 
@@ -352,7 +355,7 @@ def step3_dv_reports():
 # ===========================================================================
 # STEP 4: Transit Least Squares (TLS)
 # ===========================================================================
-def step4_tls():
+def step4_tls(findings: dict) -> None:
     log("STEP 4: Running Transit Least Squares (TLS) analysis...")
     try:
         from transitleastsquares import transitleastsquares
@@ -469,7 +472,9 @@ def step4_tls():
             axes[1].legend(fontsize=9)
 
             plt.tight_layout()
-            plot_path = os.path.join(DEEP_DIR, f'tls_{name.replace(" ", "_").replace(".", "_")}.png')
+            safe_name = name.replace(" ", "_").replace(".", "_")
+            safe_name = os.path.basename(safe_name)  # strip any directory components
+            plot_path = os.path.join(DEEP_DIR, f'tls_{safe_name}.png')
             plt.savefig(plot_path, dpi=150, bbox_inches='tight')
             plt.close()
             log(f"  Saved TLS plot: {plot_path}")
@@ -482,7 +487,7 @@ def step4_tls():
 # ===========================================================================
 # STEP 5: Multi-sector secondary eclipse check
 # ===========================================================================
-def step5_multisector_secondary():
+def step5_multisector_secondary(findings: dict) -> None:
     log("STEP 5: Multi-sector secondary eclipse search...")
     import lightkurve as lk
 
@@ -568,7 +573,9 @@ def step5_multisector_secondary():
             ax.set_title(f'{name} — Multi-sector Secondary Eclipse Search ({len(search)} sectors, {len(time)} pts)')
             ax.legend(fontsize=8)
             plt.tight_layout()
-            plot_path = os.path.join(DEEP_DIR, f'secondary_{name.replace(" ", "_").replace(".", "_")}.png')
+            safe_name = name.replace(" ", "_").replace(".", "_")
+            safe_name = os.path.basename(safe_name)  # strip any directory components
+            plot_path = os.path.join(DEEP_DIR, f'secondary_{safe_name}.png')
             plt.savefig(plot_path, dpi=150, bbox_inches='tight')
             plt.close()
 
@@ -580,7 +587,7 @@ def step5_multisector_secondary():
 # ===========================================================================
 # WRITE RESULTS
 # ===========================================================================
-def write_results():
+def write_results(findings: dict) -> None:
     log("Writing results...")
 
     # Save JSON
@@ -702,12 +709,14 @@ if __name__ == '__main__':
     log("Targets: " + ", ".join(t['toi'] for t in TARGETS))
     log("=" * 60)
 
-    step1_centroid_analysis()
-    step2_gaia_query()
-    step3_dv_reports()
-    step4_tls()
-    step5_multisector_secondary()
-    write_results()
+    findings: dict = {}
+
+    step1_centroid_analysis(findings)
+    step2_gaia_query(findings)
+    step3_dv_reports(findings)
+    step4_tls(findings)
+    step5_multisector_secondary(findings)
+    write_results(findings)
 
     log("=" * 60)
     log("DEEP ANALYSIS COMPLETE")

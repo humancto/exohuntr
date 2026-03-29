@@ -70,7 +70,7 @@ pub fn find_csv_files(dir: &Path) -> Result<Vec<PathBuf>> {
     for entry in fs::read_dir(dir).context("Cannot read input directory")? {
         let entry = entry?;
         let path = entry.path();
-        if path.extension().map_or(false, |e| e == "csv") {
+        if path.extension().is_some_and(|e| e == "csv") {
             files.push(path);
         }
     }

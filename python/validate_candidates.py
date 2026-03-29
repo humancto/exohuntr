@@ -16,6 +16,8 @@ Usage:
     python validate_candidates.py --input candidates.json --lightcurves data/lightcurves/
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import warnings
@@ -24,7 +26,31 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message=".*divide by zero.*")
+
+# Phase boundaries for transit detection
+TRANSIT_PHASE_HALF_WIDTH = 0.05
+OUT_OF_TRANSIT_INNER = 0.15
+OUT_OF_TRANSIT_OUTER = 0.85
+SECONDARY_PHASE_CENTER = 0.5
+SECONDARY_PHASE_HALF_WIDTH = 0.05
+
+# Validation thresholds
+ODD_EVEN_RATIO_MIN = 0.7
+ODD_EVEN_RATIO_MAX = 1.4
+SECONDARY_DEPTH_THRESHOLD = 0.3
+TRANSIT_SHAPE_FLATNESS_THRESHOLD = 0.2
+MAX_TRANSIT_DURATION_FRAC = 0.3
+PERIOD_EXACT_TOLERANCE = 0.05
+PERIOD_HARMONIC_TOLERANCE = 0.1
+HARMONICS = [0.5, 2.0, 3.0, 1.0 / 3.0, 4.0, 0.25]
+PLANET_RADIUS_RATIO_MAX = 0.3
+BINARY_RADIUS_RATIO_MIN = 1.0
+
+# Scoring
+BASE_SCORE = 50
 
 import matplotlib
 matplotlib.use("Agg")
@@ -35,7 +61,9 @@ import matplotlib.pyplot as plt
 # Test 1: Odd/Even Transit Depth
 # ============================================================================
 
-def test_odd_even_depth(time, flux, period, epoch):
+def test_odd_even_depth(
+    time: np.ndarray, flux: np.ndarray, period: float, epoch: float
+) -> tuple[float | None, bool | None]:
     """Compare transit depths of odd vs even transits.
 
     If depths differ significantly, the signal is likely an eclipsing binary
@@ -45,14 +73,14 @@ def test_odd_even_depth(time, flux, period, epoch):
     A ratio near 1.0 means consistent depths (planet-like).
     """
     phase = ((time - epoch) / period) % 1.0
-    transit_mask = (phase < 0.05) | (phase > 0.95)
+    transit_mask = (phase < TRANSIT_PHASE_HALF_WIDTH) | (phase > (1.0 - TRANSIT_PHASE_HALF_WIDTH))
 
     # Assign each transit to odd or even
     transit_number = np.floor((time - epoch) / period).astype(int)
     odd_mask = transit_mask & (transit_number % 2 == 1)
     even_mask = transit_mask & (transit_number % 2 == 0)
 
-    out_mask = (phase > 0.15) & (phase < 0.85)
+    out_mask = (phase > OUT_OF_TRANSIT_INNER) & (phase < OUT_OF_TRANSIT_OUTER)
     baseline = np.median(flux[out_mask]) if out_mask.sum() > 10 else np.median(flux)
 
     odd_flux = flux[odd_mask]
@@ -68,8 +96,8 @@ def test_odd_even_depth(time, flux, period, epoch):
         return None, None
 
     ratio = depth_odd / depth_even
-    # Consistent depths: ratio between 0.7 and 1.4
-    passed = 0.7 <= ratio <= 1.4
+    # Consistent depths: ratio between ODD_EVEN_RATIO_MIN and ODD_EVEN_RATIO_MAX
+    passed = ODD_EVEN_RATIO_MIN <= ratio <= ODD_EVEN_RATIO_MAX
     return ratio, passed
 
 
@@ -77,7 +105,9 @@ def test_odd_even_depth(time, flux, period, epoch):
 # Test 2: Secondary Eclipse Search
 # ============================================================================
 
-def test_secondary_eclipse(time, flux, period, epoch):
+def test_secondary_eclipse(
+    time: np.ndarray, flux: np.ndarray, period: float, epoch: float
+) -> tuple[float | None, bool | None]:
     """Search for a brightness dip at phase 0.5 (opposite the primary transit).
 
     A secondary eclipse indicates the companion is luminous — i.e., a star
@@ -90,10 +120,10 @@ def test_secondary_eclipse(time, flux, period, epoch):
     """
     phase = ((time - epoch) / period) % 1.0
 
-    # Primary transit region: phase 0 +/- 0.05
-    primary_mask = (phase < 0.05) | (phase > 0.95)
-    # Secondary eclipse region: phase 0.5 +/- 0.05
-    secondary_mask = (phase > 0.45) & (phase < 0.55)
+    # Primary transit region: phase 0 +/- TRANSIT_PHASE_HALF_WIDTH
+    primary_mask = (phase < TRANSIT_PHASE_HALF_WIDTH) | (phase > (1.0 - TRANSIT_PHASE_HALF_WIDTH))
+    # Secondary eclipse region: phase 0.5 +/- SECONDARY_PHASE_HALF_WIDTH
+    secondary_mask = (phase > (SECONDARY_PHASE_CENTER - SECONDARY_PHASE_HALF_WIDTH)) & (phase < (SECONDARY_PHASE_CENTER + SECONDARY_PHASE_HALF_WIDTH))
     # Out-of-transit baseline
     out_mask = (phase > 0.1) & (phase < 0.4)
 
@@ -108,8 +138,8 @@ def test_secondary_eclipse(time, flux, period, epoch):
         return None, None
 
     ratio = secondary_depth / primary_depth
-    # No secondary eclipse: ratio < 0.3
-    passed = ratio < 0.3
+    # No secondary eclipse: ratio < SECONDARY_DEPTH_THRESHOLD
+    passed = ratio < SECONDARY_DEPTH_THRESHOLD
     return ratio, passed
 
 
@@ -117,7 +147,9 @@ def test_secondary_eclipse(time, flux, period, epoch):
 # Test 3: Transit Shape (V vs U)
 # ============================================================================
 
-def test_transit_shape(time, flux, period, epoch, duration_hours):
+def test_transit_shape(
+    time: np.ndarray, flux: np.ndarray, period: float, epoch: float, duration_hours: float
+) -> tuple[float | None, bool | None]:
     """Analyze transit morphology: U-shaped (planet) vs V-shaped (binary).
 
     Planets produce flat-bottomed transits (the planet fully covers part of the
@@ -132,7 +164,7 @@ def test_transit_shape(time, flux, period, epoch, duration_hours):
     phase[phase > 0.5] -= 1.0  # center on 0
 
     dur_phase = duration_hours / (period * 24)
-    if dur_phase <= 0 or dur_phase > 0.3:
+    if dur_phase <= 0 or dur_phase > MAX_TRANSIT_DURATION_FRAC:
         return None, None
 
     # In-transit points
@@ -169,7 +201,7 @@ def test_transit_shape(time, flux, period, epoch, duration_hours):
     flatness = 1.0 - (flat_std / edge_std) if edge_std > flat_std else 0.5
 
     # Flatness > 0.3 suggests U-shape (planet-like)
-    passed = flatness > 0.2
+    passed = flatness > TRANSIT_SHAPE_FLATNESS_THRESHOLD
     return flatness, passed
 
 
@@ -177,7 +209,9 @@ def test_transit_shape(time, flux, period, epoch, duration_hours):
 # Test 4: Period Agreement with TESS Pipeline
 # ============================================================================
 
-def test_period_agreement(our_period, tess_period):
+def test_period_agreement(
+    our_period: float, tess_period: float | None
+) -> tuple[str | None, bool | None]:
     """Check if our detected period matches the TESS pipeline period.
 
     Agreement validates our detection independently. Harmonic periods
@@ -189,12 +223,12 @@ def test_period_agreement(our_period, tess_period):
     ratio = our_period / tess_period
 
     # Direct match
-    if abs(ratio - 1.0) < 0.05:
+    if abs(ratio - 1.0) < PERIOD_EXACT_TOLERANCE:
         return ("exact", True)
 
     # Harmonic matches
-    for h in [0.5, 2.0, 3.0, 1.0/3.0, 4.0, 0.25]:
-        if abs(ratio - h) < 0.1:
+    for h in HARMONICS:
+        if abs(ratio - h) < PERIOD_HARMONIC_TOLERANCE:
             return ("harmonic", True)
 
     return ("disagree", False)
@@ -204,9 +238,9 @@ def test_period_agreement(our_period, tess_period):
 # Scoring & Report
 # ============================================================================
 
-def compute_planet_score(results):
+def compute_planet_score(results: dict) -> int:
     """Compute a 0-100 planet likelihood score from validation tests."""
-    score = 50  # start neutral
+    score = BASE_SCORE  # start neutral
 
     # Odd/even depth test (±15)
     if results.get("odd_even_passed") is True:
@@ -236,9 +270,9 @@ def compute_planet_score(results):
 
     # Radius ratio sanity (±10)
     rr = results.get("radius_ratio", 0)
-    if rr and rr < 0.3:
+    if rr and rr < PLANET_RADIUS_RATIO_MAX:
         score += 10  # planet-sized
-    elif rr and rr > 1.0:
+    elif rr and rr > BINARY_RADIUS_RATIO_MIN:
         score -= 15  # bigger than star = binary
 
     # SNR bonus
@@ -252,7 +286,7 @@ def compute_planet_score(results):
     return max(0, min(100, score))
 
 
-def generate_validation_report(validated, output_dir):
+def generate_validation_report(validated: list[dict], output_dir: str | Path) -> Path:
     """Generate markdown validation report."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -410,13 +444,18 @@ def main():
         result = dict(c)  # copy all candidate fields
 
         # Load light curve
-        filepath = lc_dir / c["filename"]
+        safe_filename = Path(c["filename"]).name  # strip directory components
+        filepath = lc_dir / safe_filename
         if not filepath.exists():
             result["planet_score"] = 0
             validated.append(result)
             continue
 
         df = pd.read_csv(filepath)
+        if "time" not in df.columns or "flux" not in df.columns:
+            result["planet_score"] = 0
+            validated.append(result)
+            continue
         time = df["time"].values
         flux = df["flux"].values
         period = c["period_days"]

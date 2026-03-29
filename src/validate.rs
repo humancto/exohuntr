@@ -91,7 +91,7 @@ pub fn test_odd_even_depth(
 
     for i in 0..time.len() {
         let phase = phases[i];
-        let transit_mask = phase < 0.05 || phase > 0.95;
+        let transit_mask = !(0.05..=0.95).contains(&phase);
         let out_mask = phase > 0.15 && phase < 0.85;
 
         if transit_mask {
@@ -151,7 +151,7 @@ pub fn test_secondary_eclipse(
 
     for i in 0..time.len() {
         let phase = phases[i];
-        if phase < 0.05 || phase > 0.95 {
+        if !(0.05..=0.95).contains(&phase) {
             primary_flux.push(flux[i]);
         }
         if phase > 0.45 && phase < 0.55 {
@@ -374,46 +374,51 @@ pub fn compute_planet_score(
     score.clamp(0, 100) as u32
 }
 
+/// Parameters for a single candidate to be validated.
+pub struct CandidateParams {
+    pub period: f64,
+    pub epoch: f64,
+    pub duration_hours: f64,
+    pub snr: f64,
+    pub depth_ppm: f64,
+    pub radius_ratio: f64,
+    pub n_transits: usize,
+    pub bls_power: f64,
+    pub reference_period: Option<f64>,
+}
+
 /// Run all validation tests on a single candidate.
 ///
-/// The `reference_period` parameter is optional and comes from an external
+/// The `reference_period` field is optional and comes from an external
 /// catalog (e.g., ExoFOP TESS pipeline period) for the period agreement test.
 pub fn validate_candidate(
     lc: &LightCurve,
-    period: f64,
-    epoch: f64,
-    duration_hours: f64,
-    snr: f64,
-    depth_ppm: f64,
-    radius_ratio: f64,
-    n_transits: usize,
-    bls_power: f64,
-    reference_period: Option<f64>,
+    params: &CandidateParams,
 ) -> ValidationResult {
-    let odd_even = test_odd_even_depth(&lc.time, &lc.flux, period, epoch);
-    let secondary_eclipse = test_secondary_eclipse(&lc.time, &lc.flux, period, epoch);
-    let transit_shape = test_transit_shape(&lc.time, &lc.flux, period, epoch, duration_hours);
-    let period_agreement = reference_period.and_then(|rp| test_period_agreement(period, rp));
+    let odd_even = test_odd_even_depth(&lc.time, &lc.flux, params.period, params.epoch);
+    let secondary_eclipse = test_secondary_eclipse(&lc.time, &lc.flux, params.period, params.epoch);
+    let transit_shape = test_transit_shape(&lc.time, &lc.flux, params.period, params.epoch, params.duration_hours);
+    let period_agreement = params.reference_period.and_then(|rp| test_period_agreement(params.period, rp));
 
     let planet_score = compute_planet_score(
         &odd_even,
         &secondary_eclipse,
         &transit_shape,
         &period_agreement,
-        radius_ratio,
-        snr,
+        params.radius_ratio,
+        params.snr,
     );
 
     ValidationResult {
         filename: lc.filename.clone(),
-        period_days: period,
-        epoch,
-        snr,
-        duration_hours,
-        depth_ppm,
-        radius_ratio,
-        n_transits,
-        bls_power,
+        period_days: params.period,
+        epoch: params.epoch,
+        snr: params.snr,
+        duration_hours: params.duration_hours,
+        depth_ppm: params.depth_ppm,
+        radius_ratio: params.radius_ratio,
+        n_transits: params.n_transits,
+        bls_power: params.bls_power,
         odd_even,
         secondary_eclipse,
         transit_shape,
@@ -771,15 +776,17 @@ mod tests {
         let lc = make_transit_lc(10000, 3.0, 0.0, 0.06, 0.01, 60.0);
         let result = validate_candidate(
             &lc,
-            3.0,
-            0.0,
-            0.06 * 3.0 * 24.0, // duration_hours
-            20.0,               // snr
-            10000.0,            // depth_ppm
-            0.1,                // radius_ratio
-            20,                 // n_transits
-            5.0,                // bls_power
-            Some(3.0),          // reference_period
+            &CandidateParams {
+                period: 3.0,
+                epoch: 0.0,
+                duration_hours: 0.06 * 3.0 * 24.0,
+                snr: 20.0,
+                depth_ppm: 10000.0,
+                radius_ratio: 0.1,
+                n_transits: 20,
+                bls_power: 5.0,
+                reference_period: Some(3.0),
+            },
         );
         assert!(result.planet_score >= 50, "Planet candidate should score >= 50, got {}", result.planet_score);
         assert_eq!(result.filename, "test_transit.csv");
@@ -792,15 +799,17 @@ mod tests {
         let lc = make_binary_lc(10000, 3.0, 0.0, 0.05, 0.04, 60.0);
         let result = validate_candidate(
             &lc,
-            3.0,
-            0.0,
-            2.0,   // duration_hours
-            15.0,  // snr
-            50000.0, // depth_ppm
-            1.5,   // radius_ratio > 1.0 (binary-like)
-            20,
-            3.0,
-            Some(7.0), // Period disagrees
+            &CandidateParams {
+                period: 3.0,
+                epoch: 0.0,
+                duration_hours: 2.0,
+                snr: 15.0,
+                depth_ppm: 50000.0,
+                radius_ratio: 1.5,
+                n_transits: 20,
+                bls_power: 3.0,
+                reference_period: Some(7.0),
+            },
         );
         assert!(result.planet_score < 50, "Binary should score < 50, got {}", result.planet_score);
     }
@@ -809,7 +818,18 @@ mod tests {
     fn test_validate_candidate_no_reference_period() {
         let lc = make_transit_lc(10000, 3.0, 0.0, 0.06, 0.01, 60.0);
         let result = validate_candidate(
-            &lc, 3.0, 0.0, 4.32, 20.0, 10000.0, 0.1, 20, 5.0, None,
+            &lc,
+            &CandidateParams {
+                period: 3.0,
+                epoch: 0.0,
+                duration_hours: 4.32,
+                snr: 20.0,
+                depth_ppm: 10000.0,
+                radius_ratio: 0.1,
+                n_transits: 20,
+                bls_power: 5.0,
+                reference_period: None,
+            },
         );
         assert!(result.period_agreement.is_none());
     }

@@ -199,6 +199,16 @@ pub fn estimate_snr(lc: &LightCurve, period: f64, phase: f64, dur_frac: f64) -> 
 }
 
 /// Generate log-spaced trial periods between min_period and max_period.
+///
+/// # Examples
+///
+/// ```
+/// use exoplanet_hunter::bls::generate_periods;
+///
+/// let periods = generate_periods(1.0, 10.0, 100);
+/// assert_eq!(periods.len(), 100);
+/// assert!((periods[0] - 1.0).abs() < 1e-10);
+/// ```
 pub fn generate_periods(min_period: f64, max_period: f64, n_periods: usize) -> Vec<f64> {
     let log_min = min_period.ln();
     let log_max = max_period.ln();
@@ -211,6 +221,16 @@ pub fn generate_periods(min_period: f64, max_period: f64, n_periods: usize) -> V
 }
 
 /// Compute phase array for a light curve given period and epoch.
+///
+/// # Examples
+///
+/// ```
+/// use exoplanet_hunter::bls::compute_phases;
+///
+/// let phases = compute_phases(&[0.0, 1.0, 2.0], 2.0, 0.0);
+/// assert!((phases[0] - 0.0).abs() < 1e-10);
+/// assert!((phases[1] - 0.5).abs() < 1e-10);
+/// ```
 pub fn compute_phases(time: &[f64], period: f64, epoch: f64) -> Vec<f64> {
     time.iter()
         .map(|&t| {
@@ -221,6 +241,16 @@ pub fn compute_phases(time: &[f64], period: f64, epoch: f64) -> Vec<f64> {
 }
 
 /// Compute median of a slice. Returns 0.0 for empty input.
+///
+/// # Examples
+///
+/// ```
+/// use exoplanet_hunter::bls::median;
+///
+/// assert!((median(&[3.0, 1.0, 2.0]) - 2.0).abs() < 1e-10);
+/// assert!((median(&[4.0, 1.0, 3.0, 2.0]) - 2.5).abs() < 1e-10);
+/// assert_eq!(median(&[]), 0.0);
+/// ```
 pub fn median(data: &[f64]) -> f64 {
     if data.is_empty() {
         return 0.0;
@@ -228,7 +258,7 @@ pub fn median(data: &[f64]) -> f64 {
     let mut sorted = data.to_vec();
     sorted.sort_by_key(|&v| OrderedFloat(v));
     let n = sorted.len();
-    if n % 2 == 0 {
+    if n.is_multiple_of(2) {
         (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
     } else {
         sorted[n / 2]

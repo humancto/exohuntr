@@ -18,19 +18,19 @@ all: setup download hunt analyze
 # Install Python dependencies
 setup:
 	@echo "📦 Installing dependencies..."
-	pip install lightkurve astroquery pandas numpy matplotlib tqdm --quiet
+	pip install -r requirements.txt --quiet
 
 # Download light curves
 download:
 	@echo "🛰️  Downloading light curves..."
-	python python/download_lightcurves.py \
+	python3.11 python/download_lightcurves.py \
 		--mission $(MISSION) --sector $(SECTOR) \
 		--limit $(LIMIT) --catalog
 
 # Download unconfirmed candidates (best for discovery!)
 download-candidates:
 	@echo "🎯 Downloading unconfirmed TOI candidates..."
-	python python/download_lightcurves.py \
+	python3.11 python/download_lightcurves.py \
 		--candidates-only --limit $(LIMIT) --catalog
 
 # Build and run Rust BLS engine
@@ -49,7 +49,7 @@ target/release/hunt: src/main.rs Cargo.toml
 # Analyze candidates and generate plots
 analyze:
 	@echo "📊 Analyzing candidates..."
-	python python/analyze_candidates.py \
+	python3.11 python/analyze_candidates.py \
 		--input candidates.json \
 		--lightcurves data/lightcurves/ \
 		--crossmatch \

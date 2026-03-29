@@ -13,6 +13,8 @@ Usage:
     python analyze_candidates.py --input candidates.json --crossmatch  # check if any are NEW
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import sys
@@ -40,7 +42,7 @@ COLORS = {
     "transit": "#ef4444",
 }
 
-def setup_style():
+def setup_style() -> None:
     plt.rcParams.update({
         "figure.facecolor": COLORS["bg"],
         "axes.facecolor": COLORS["bg"],
@@ -60,13 +62,15 @@ def setup_style():
 # Phase-folded light curve plot
 # ============================================================================
 
-def plot_phase_folded(candidate: dict, lc_dir: Path, output_dir: Path):
+def plot_phase_folded(candidate: dict, lc_dir: Path, output_dir: Path) -> Path | None:
     """Create a phase-folded light curve plot for a candidate."""
     filepath = lc_dir / candidate["filename"]
     if not filepath.exists():
         return None
 
     df = pd.read_csv(filepath)
+    if "time" not in df.columns or "flux" not in df.columns:
+        return None
     time = df["time"].values
     flux = df["flux"].values
 
@@ -138,7 +142,7 @@ def plot_phase_folded(candidate: dict, lc_dir: Path, output_dir: Path):
              bbox=dict(boxstyle="round,pad=0.5", facecolor=COLORS["grid"], alpha=0.8))
 
     plt.tight_layout()
-    safe_name = candidate["filename"].replace(".csv", "")
+    safe_name = Path(candidate["filename"]).stem
     outpath = output_dir / f"phase_fold_{safe_name}.png"
     fig.savefig(outpath, dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -149,7 +153,7 @@ def plot_phase_folded(candidate: dict, lc_dir: Path, output_dir: Path):
 # Overview plots
 # ============================================================================
 
-def plot_candidate_overview(candidates: list, output_dir: Path):
+def plot_candidate_overview(candidates: list[dict], output_dir: Path) -> None:
     """Create overview scatter plots of all candidates."""
     if not candidates:
         return
@@ -206,7 +210,7 @@ def plot_candidate_overview(candidates: list, output_dir: Path):
 # Cross-matching
 # ============================================================================
 
-def crossmatch_known_planets(candidates: list, catalog_path: Path) -> pd.DataFrame:
+def crossmatch_known_planets(candidates: list[dict], catalog_path: Path) -> pd.DataFrame:
     """Cross-match candidates with the known exoplanet catalog."""
     if not catalog_path.exists():
         print("   ⚠️  No catalog file found. Run downloader with --catalog first.")
@@ -254,7 +258,7 @@ def crossmatch_known_planets(candidates: list, catalog_path: Path) -> pd.DataFra
 # Report generation
 # ============================================================================
 
-def generate_report(report: dict, crossmatch_df: pd.DataFrame, output_dir: Path):
+def generate_report(report: dict, crossmatch_df: pd.DataFrame, output_dir: Path) -> None:
     """Generate a markdown report."""
     candidates = report["candidates"]
 
@@ -324,7 +328,7 @@ def generate_report(report: dict, crossmatch_df: pd.DataFrame, output_dir: Path)
 # Main
 # ============================================================================
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="📊 Analyze BLS transit detection results")
     parser.add_argument("--input", default="candidates.json", help="BLS results JSON")
     parser.add_argument("--lightcurves", default="data/lightcurves", help="Light curve directory")
@@ -344,7 +348,11 @@ def main():
     print("\n📊 Exoplanet Hunter — Analysis")
     print("━" * 50)
 
-    with open(args.input) as f:
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"   Error: {input_path} not found")
+        sys.exit(1)
+    with open(input_path) as f:
         report = json.load(f)
 
     candidates = report["candidates"]

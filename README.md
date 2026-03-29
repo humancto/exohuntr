@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://astroarchitekt.github.io/exohuntr">View Live Results</a> &middot;
+  <a href="https://humancto.github.io/exohuntr">View Live Results</a> &middot;
   <a href="#quick-start">Quick Start</a> &middot;
   <a href="#results">Results</a> &middot;
   <a href="#how-it-works">How It Works</a>
@@ -64,7 +64,7 @@ We downloaded 200 light curves from NASA's TESS satellite &mdash; specifically *
   <em>Left: Period vs transit depth. Center: Period vs planet/star radius ratio. Right: SNR distribution (median 19.8).</em>
 </p>
 
-Full interactive results table and all 30 phase-fold plots: **[astroarchitekt.github.io/exohuntr](https://astroarchitekt.github.io/exohuntr)**
+Full interactive results table and all 30 phase-fold plots: **[humancto.github.io/exohuntr](https://humancto.github.io/exohuntr)**
 
 ---
 
@@ -72,7 +72,7 @@ Full interactive results table and all 30 phase-fold plots: **[astroarchitekt.gi
 
 ```bash
 # Clone
-git clone https://github.com/AstroArchitekt/exohuntr.git
+git clone https://github.com/humancto/exohuntr.git
 cd exohuntr
 
 # One command does everything: install deps, download data, detect, analyze
@@ -273,5 +273,5 @@ MIT
 <p align="center">
   <strong>Built with Rust, Python, and Claude Code.</strong><br>
   Data from NASA TESS via MAST.<br><br>
-  <a href="https://astroarchitekt.github.io/exohuntr">View Live Results</a>
+  <a href="https://humancto.github.io/exohuntr">View Live Results</a>
 </p>

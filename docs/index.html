@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exohuntr - We Pointed a Laptop at NASA Data and Found Planet Candidates</title>
-<meta name="description" content="197 exoplanet transit candidates discovered using Rust-powered BLS detection on NASA TESS data. Open-source citizen science.">
-<meta property="og:title" content="Exohuntr - Hunting Exoplanets with Rust and NASA Data">
-<meta property="og:description" content="We analyzed 200+ TESS light curves and found 197 transit candidates. Built with Rust for speed, Python for visualization.">
+<title>Exohuntr - Open-Source Transit Detection and Validation for NASA TESS Data</title>
+<meta name="description" content="Independent transit detection and validation of 200 TESS Objects of Interest. 3 deep-validated candidates including a 1.9 R_Earth super-Earth.">
+<meta property="og:title" content="Exohuntr - Independent Transit Detection Pipeline for NASA TESS">
+<meta property="og:description" content="BLS detection in Rust, 5-test validation, deep analysis with TLS + centroid + Gaia DR3. 3 validated candidates from 200 unconfirmed TOIs.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <style>
@@ -282,16 +282,16 @@ footer a{color:var(--accent);text-decoration:none}
   <div class="badge"><span class="dot"></span> Live Results from NASA TESS Data</div>
   <h1>Exohuntr</h1>
   <p class="tagline">
-    An open-source pipeline that downloads NASA satellite data, scans for planetary transits
-    at <strong>50x the speed of Python</strong>, and independently rediscovered signals that
-    match NASA's own detections &mdash; including <strong>17 validated candidates</strong>
-    orbiting distant stars.
+    An open-source transit detection and validation pipeline for NASA TESS data.
+    BLS detection in Rust, false-positive validation, and deep analysis with TLS, centroid,
+    and Gaia DR3 checks &mdash; producing <strong>3 deep-validated planet candidates</strong>
+    from 200 unconfirmed TESS Objects of Interest.
   </p>
   <div class="stats-bar">
     <div class="stat"><div class="number">197</div><div class="label">Signals Detected</div></div>
-    <div class="stat"><div class="number orange">17</div><div class="label">Validated Candidates</div></div>
-    <div class="stat"><div class="number purple">5</div><div class="label">Tests Per Candidate</div></div>
-    <div class="stat"><div class="number green">70%+</div><div class="label">Period Match with NASA</div></div>
+    <div class="stat"><div class="number orange">3</div><div class="label">Deep-Validated Candidates</div></div>
+    <div class="stat"><div class="number purple">5+4</div><div class="label">Validation + Deep Tests</div></div>
+    <div class="stat"><div class="number green">200</div><div class="label">TOIs Analyzed</div></div>
   </div>
   <div class="scroll-hint">
     <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
@@ -301,7 +301,7 @@ footer a{color:var(--accent);text-decoration:none}
 <section id="how">
   <div class="container">
     <div class="section-header">
-      <h2>How We Hunt <span class="accent">Planets</span></h2>
+      <h2>How It <span class="accent">Works</span></h2>
       <p>When a planet crosses in front of its star, the star's brightness dips. We detect these dips algorithmically in NASA data.</p>
     </div>
     <div class="transit-demo">
@@ -321,7 +321,7 @@ footer a{color:var(--accent);text-decoration:none}
       <div class="pipeline-step">
         <div class="step-num">02</div>
         <h3>Detect <span class="tech rust">Rust</span></h3>
-        <p>Parallel BLS (Box-fitting Least Squares) scans 15,000 trial periods per star using Rayon. <strong>10-50x faster</strong> than Python.</p>
+        <p>Parallel BLS (Box-fitting Least Squares) scans 15,000 trial periods per star using Rayon for multi-core parallel processing.</p>
       </div>
       <div class="pipeline-step">
         <div class="step-num">03</div>
@@ -422,7 +422,7 @@ footer a{color:var(--accent);text-decoration:none}
       <div class="method-card">
         <h4>Performance</h4>
         <p>Rust + Rayon parallel processing. The entire 200-star dataset was scanned in under 30 seconds on 8 CPU cores.</p>
-        <div class="mono">~10-50x faster than pure Python</div>
+        <div class="mono">Parallel via Rayon (Rust)</div>
       </div>
     </div>
   </div>
@@ -467,7 +467,7 @@ footer a{color:var(--accent);text-decoration:none}
 <footer>
   <div class="container">
     <p>
-      Built with Rust, Python, and Claude Code. Data from NASA TESS via MAST.<br>
+      Built with Rust and Python. Data from NASA TESS via MAST.<br>
       <a href="https://github.com/humancto/exohuntr">Exohuntr</a> &mdash; Open-source exoplanet hunting.
     </p>
   </div>

@@ -37,6 +37,8 @@ results/new_sectors/
 # Phase 2 bulk data (too large for git, re-downloadable)
 data/phase2/
 results/phase2/
+!results/phase2/ANALYSIS_LOG.md
+!results/phase2/*.png
 
 # Temporary analysis scripts
 python/tls_remaining.py

@@ -1,4 +1,4 @@
-.PHONY: all setup download hunt analyze clean viral test test-rust test-python
+.PHONY: all setup download hunt analyze clean viral test test-rust test-python phase2 phase2-download phase2-download-fgk phase2-hunt phase2-validate phase2-flag
 
 # ============================================================================
 # 🔭 Exoplanet Hunter — Makefile
@@ -54,6 +54,60 @@ analyze:
 		--lightcurves data/lightcurves/ \
 		--crossmatch \
 		--top-n $(TOP_N)
+
+# ============================================================================
+# 🔭 Phase 2: New Planet Discovery
+# ============================================================================
+
+PHASE2_SECTOR ?= 56
+PHASE2_LIMIT ?= 1000
+PHASE2_AUTHOR ?= SPOC
+
+# Download all stars in a sector (filtering out known TOIs)
+phase2-download:
+	@echo "🔭 Phase 2: Downloading non-TOI stars from sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_sector_bulk.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT) \
+		--author $(PHASE2_AUTHOR)
+
+# Download FGK dwarfs only (higher planet yield, slower download)
+phase2-download-fgk:
+	@echo "🔭 Phase 2: Downloading FGK dwarfs from sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_sector_bulk.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT) \
+		--author $(PHASE2_AUTHOR) --fgk-only
+
+# Run BLS on Phase 2 data
+phase2-hunt: target/release/hunt
+	@echo "🔭 Phase 2: Running BLS on sector $(PHASE2_SECTOR) non-TOI stars..."
+	mkdir -p results/phase2
+	./target/release/hunt search \
+		-i data/phase2/sector_$(PHASE2_SECTOR) \
+		-o results/phase2/candidates_s$(PHASE2_SECTOR).json \
+		--snr-threshold $(SNR) --n-periods 15000
+
+# Validate Phase 2 candidates
+phase2-validate: target/release/hunt
+	@echo "🔬 Phase 2: Validating candidates..."
+	./target/release/hunt validate \
+		-i results/phase2/candidates_s$(PHASE2_SECTOR).json \
+		-l data/phase2/sector_$(PHASE2_SECTOR) \
+		-o results/phase2
+
+# Flag new discoveries
+phase2-flag:
+	@echo "🏴 Phase 2: Flagging new discoveries..."
+	python3.11 python/flag_discoveries.py \
+		--input results/phase2/candidates_s$(PHASE2_SECTOR).json \
+		--validation results/phase2/validation_results.json \
+		--min-score 60
+
+# Full Phase 2 pipeline: download → hunt → validate → flag
+phase2: phase2-download phase2-hunt phase2-validate phase2-flag
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "🔭 Phase 2 complete! Check results/phase2/"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Quick hunt: aggressive settings for maximum candidates
 aggressive:

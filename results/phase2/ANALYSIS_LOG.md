@@ -122,3 +122,46 @@ The TESS SPOC pipeline runs its own transit search (using the Transiting Planet 
   - Multi-sector stacking for marginal detections below SPOC's threshold
   - Long-period planets that SPOC misses (P > 15 days, single transit events)
   - Unusual transit shapes that automated pipelines reject
+
+---
+
+## Phase 2 FFI: Three Independent Approaches (Built & Tested)
+
+### Date: 2026-03-29
+
+### Key Discovery: QLP via obs_collection="HLSP"
+
+The reason previous QLP queries returned 0 results: we used `obs_collection="TESS"`.
+QLP and TESS-SPOC are HLSP products — must query with `obs_collection="HLSP"`.
+Once fixed: **1,037,873 QLP targets in sector 40 alone.**
+
+### Approach 1: TESScut FFI Extraction (`download_ffi_tesscut.py`)
+- Uses `astroquery.mast.Tesscut` for pixel-level cutouts
+- 3x3 aperture photometry with background subtraction
+- Works for all sectors including 56+ (200-second cadence)
+- Requires RA/Dec input (targeted field search)
+- Status: **Built, needs real-data test**
+
+### Approach 2: QLP Bulk Download (`download_qlp_bulk.py`)
+- Downloads pre-extracted QLP HLSP light curves via lightkurve
+- `lightkurve.search_lightcurve(author="QLP")` works perfectly
+- Sector 40 test: 5/5 downloads successful, 3738 pts each
+- BLS on QLP data: all 5 detected (all EBs in dense field — expected for test)
+- Status: **Built and tested end-to-end**
+
+### Approach 3: Multi-sector Stacking (`stack_multisector.py`)
+- Stitches light curves from multiple sectors per star
+- TIC 14179859 test: 5 QLP sectors, 26,665 pts, 811.8 day baseline
+- BLS on stacked data: SNR=59.3 at P=25.97d (EB, but detection works)
+- Status: **Built and tested end-to-end**
+
+### eleanor Status: ABANDONED
+- eleanor 2.0.5 requires tensorflow, numpy<2.0, and has broken photutils imports
+- TESScut provides the same FFI extraction capability without dependency hell
+- For sectors 1-55, TESScut is equivalent; for 56+, TESScut is better
+
+### Next: Scale Up
+1. Run QLP bulk on sector 40 with 500+ non-TOI, non-SPOC FGK dwarfs
+2. Filter for Rp/Rs < 0.3 candidates (planet-sized)
+3. Cross-validate any hits with TESScut (independent photometry) and multi-sector stacking
+4. Deep analysis on any planet-sized candidates

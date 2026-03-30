@@ -22,6 +22,9 @@ exoplanet-hunter/
 ├── python/
 │   ├── download_lightcurves.py         # Phase 1: Fetch TOI data from MAST/NASA
 │   ├── download_sector_bulk.py         # Phase 2: Bulk sector download (all stars)
+│   ├── download_ffi_tesscut.py        # Phase 2 FFI: TESScut pixel-level extraction
+│   ├── download_qlp_bulk.py           # Phase 2 FFI: QLP HLSP bulk download
+│   ├── stack_multisector.py           # Phase 2 FFI: Multi-sector stacking
 │   ├── flag_discoveries.py             # Phase 2: Flag new planet candidates
 │   ├── analyze_candidates.py           # Phase-fold plots, cross-matching, reports
 │   ├── validate_candidates.py          # 5-test false positive validation pipeline
@@ -29,7 +32,10 @@ exoplanet-hunter/
 │   └── toi210_full_sectors.py          # Multi-sector secondary eclipse analysis
 ├── data/
 │   ├── lightcurves/                    # Phase 1: TOI light curves
-│   └── phase2/sector_N/               # Phase 2: Bulk sector data (gitignored)
+│   ├── phase2/sector_N/               # Phase 2: SPOC bulk sector data (gitignored)
+│   ├── phase2/ffi_sector_N/           # Phase 2: TESScut FFI light curves
+│   ├── phase2/qlp_sector_N/           # Phase 2: QLP HLSP light curves
+│   └── phase2/multisector/            # Phase 2: Multi-sector stacked light curves
 ├── results/
 │   ├── plots/                          # Phase-folded light curve PNGs
 │   ├── deep_analysis/                  # TRICERATOPS, multi-sector results
@@ -180,6 +186,45 @@ python3.11 python/flag_discoveries.py \
 - Recent sectors (56+) have 200-second FFI cadence — better sensitivity
 - Higher-numbered sectors have had less community scrutiny
 - Use QLP author for FFI light curves (~160k stars/sector vs ~15k for SPOC)
+
+### Phase 2 FFI: Three Independent Approaches
+
+SPOC 2-minute targets have already been transit-searched by TESS TPS. To find NEW
+planets, we need Full Frame Image (FFI) data — 200k+ stars per sector never searched.
+
+**Approach 1: TESScut** (`download_ffi_tesscut.py`)
+
+- Downloads pixel cutouts from TESS FFI, performs aperture photometry
+- Works for ALL sectors including 56+ (200-second cadence)
+- Requires RA/Dec coordinate input
+- Best for: targeted searches around specific fields
+
+```bash
+python3.11 python/download_ffi_tesscut.py --sector 40 --ra 90.0 --dec -66.5 --limit 100
+```
+
+**Approach 2: QLP Bulk** (`download_qlp_bulk.py`)
+
+- Downloads pre-extracted QLP HLSP light curves from MAST
+- CRITICAL: Must query with `obs_collection="HLSP"` (not "TESS")
+- lightkurve supports `author="QLP"` and `author="TESS-SPOC"` directly
+- Best for: bulk scanning of many FFI stars per sector
+
+```bash
+python3.11 python/download_qlp_bulk.py --sector 56 --limit 500
+```
+
+**Approach 3: Multi-sector Stacking** (`stack_multisector.py`)
+
+- Combines light curves from multiple sectors for the same star
+- Pushes below SPOC's 7.1-sigma threshold with longer baselines
+- Best for: long-period planets (P > 15d) and marginal single-sector signals
+
+```bash
+python3.11 python/stack_multisector.py --tic-ids 14179859 --author QLP
+# Or stack top candidates from a previous run:
+python3.11 python/stack_multisector.py --from-json results/phase2/candidates_s56.json --min-snr 5.0
+```
 
 ## Validation Pipeline (Rust: `validate.rs` / Python: `validate_candidates.py`)
 

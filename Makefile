@@ -1,4 +1,4 @@
-.PHONY: all setup download hunt analyze clean viral test test-rust test-python phase2 phase2-download phase2-download-fgk phase2-hunt phase2-validate phase2-flag
+.PHONY: all setup download hunt analyze clean viral test test-rust test-python phase2 phase2-download phase2-download-fgk phase2-hunt phase2-validate phase2-flag phase2-ffi phase2-qlp phase2-stack
 
 # ============================================================================
 # 🔭 Exoplanet Hunter — Makefile
@@ -108,6 +108,34 @@ phase2: phase2-download phase2-hunt phase2-validate phase2-flag
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "🔭 Phase 2 complete! Check results/phase2/"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ============================================================================
+# 🔭 Phase 2 FFI: Three Independent Approaches
+# ============================================================================
+
+PHASE2_RA ?= 90.0
+PHASE2_DEC ?= -66.5
+PHASE2_RADIUS ?= 0.5
+
+# Approach 1: TESScut FFI extraction (works all sectors, pixel-level photometry)
+phase2-ffi:
+	@echo "🔭 Phase 2 FFI: TESScut extraction — Sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_ffi_tesscut.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT) \
+		--ra $(PHASE2_RA) --dec $(PHASE2_DEC) --radius $(PHASE2_RADIUS)
+
+# Approach 2: QLP bulk download (160k+ stars/sector, pre-extracted light curves)
+phase2-qlp:
+	@echo "🔭 Phase 2 FFI: QLP bulk download — Sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_qlp_bulk.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT)
+
+# Approach 3: Multi-sector stacking (push below SPOC's SNR threshold)
+phase2-stack:
+	@echo "🔭 Phase 2: Multi-sector stacking..."
+	python3.11 python/stack_multisector.py \
+		--sector $(PHASE2_SECTOR) --top-n $(PHASE2_LIMIT) \
+		--author $(PHASE2_AUTHOR)
 
 # Quick hunt: aggressive settings for maximum candidates
 aggressive:

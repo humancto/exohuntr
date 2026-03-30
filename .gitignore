@@ -40,6 +40,13 @@ results/phase2/
 !results/phase2/ANALYSIS_LOG.md
 !results/phase2/*.png
 
+# Phase 2 FFI data (re-downloadable)
+data/phase2/ffi_sector_*/
+data/phase2/qlp_sector_*/
+data/phase2/qlp_test/
+data/phase2/multisector/
+data/phase2/multisector_test/
+
 # Temporary analysis scripts
 python/tls_remaining.py
 

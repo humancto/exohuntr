@@ -68,3 +68,57 @@
 2. **Target recent sectors (70+)** with less community scrutiny
 3. **Use --fgk-only filter** to focus on FGK dwarfs (best planet hosts)
 4. **Lower SNR threshold cautiously** (5.5 instead of 6.0) for marginal but real signals
+
+---
+
+## Run 2: Sector 70, FGK Dwarfs (Partial — 203 stars)
+
+### Parameters
+- **Date:** 2026-03-29
+- **Sector:** 70 (chosen for lowest TOI coverage: 1.2%)
+- **Author:** SPOC
+- **FGK filter:** ON (Tmag 8-13, logg>4, Teff 3500-7000K)
+- **Stars downloaded:** 203 / 500 target (still downloading)
+
+### Results
+
+| Stage | Count |
+|-------|-------|
+| Light curves | 203 |
+| BLS detections | 176 |
+| Validated (score >= 70) | 45 |
+| Flagged NEW | 88 |
+| Planet-sized NEW (Rp/Rs < 0.3) | 0 |
+
+Smallest Rp/Rs among NEW candidates: TIC 14179859 (Rp/Rs=0.385, P=10.28d, SNR=9.7)
+
+### Conclusion
+
+Same pattern as sector 56: no planet-sized candidates among SPOC non-TOI targets. All detections are eclipsing binaries (Rp/Rs > 0.3). The FGK filter didn't change the outcome — the fundamental issue is that SPOC targets have already been searched by the TESS pipeline.
+
+## Strategic Assessment
+
+### Why SPOC non-TOIs don't yield new planets
+
+The TESS SPOC pipeline runs its own transit search (using the Transiting Planet Search module, TPS) on every 2-minute cadence target. Any planet candidate it finds becomes a Threshold Crossing Event (TCE), goes through Data Validation (DV), and if it passes, becomes a TOI.
+
+**Stars in the SPOC target list that are NOT TOIs have already been searched and cleared by SPOC.** Our BLS is finding the same eclipsing binaries that SPOC found and correctly rejected.
+
+### What would actually find new planets
+
+1. **Full Frame Image (FFI) data** — 200k+ stars per sector that were NOT on the 2-minute target list and were NOT searched by SPOC TPS. These stars only have FFI photometry (10-min or 200-sec cadence). QLP extracts light curves but doesn't run a transit search.
+
+2. **Problem:** QLP/TESS-SPOC FFI light curves are not available as individual timeseries products on MAST through astroquery. They may need to be downloaded as bulk FITS files from the MAST archive directly.
+
+3. **Alternative approach:** Use `eleanor` Python package to extract light curves directly from FFI cutouts for specific TIC IDs. This bypasses the MAST product catalog entirely.
+
+4. **Another alternative:** Download pre-computed QLP light curves from the bulk download portal at https://archive.stsci.edu/hlsp/qlp
+
+### Recommended next steps
+
+- Investigate bulk QLP download from MAST HLSP portal
+- Try `eleanor` for on-demand FFI extraction
+- Or: accept that laptop-based citizen science may not compete with SPOC on 2-min targets, and focus on:
+  - Multi-sector stacking for marginal detections below SPOC's threshold
+  - Long-period planets that SPOC misses (P > 15 days, single transit events)
+  - Unusual transit shapes that automated pipelines reject

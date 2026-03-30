@@ -20,13 +20,26 @@ exoplanet-hunter/
 │   ├── io.rs                           # CSV parsing, file discovery
 │   └── main.rs                         # CLI: search, validate, crossmatch subcommands
 ├── python/
-│   ├── download_lightcurves.py         # Fetch data from MAST/NASA
+│   ├── download_lightcurves.py         # Phase 1: Fetch TOI data from MAST/NASA
+│   ├── download_sector_bulk.py         # Phase 2: Bulk sector download (all stars)
+│   ├── download_ffi_tesscut.py        # Phase 2 FFI: TESScut pixel-level extraction
+│   ├── download_qlp_bulk.py           # Phase 2 FFI: QLP HLSP bulk download
+│   ├── stack_multisector.py           # Phase 2 FFI: Multi-sector stacking
+│   ├── flag_discoveries.py             # Phase 2: Flag new planet candidates
 │   ├── analyze_candidates.py           # Phase-fold plots, cross-matching, reports
-│   └── validate_candidates.py          # 5-test false positive validation pipeline
+│   ├── validate_candidates.py          # 5-test false positive validation pipeline
+│   ├── run_triceratops.py             # TRICERATOPS FPP calculation
+│   └── toi210_full_sectors.py          # Multi-sector secondary eclipse analysis
 ├── data/
-│   └── lightcurves/                    # Downloaded CSV light curves
+│   ├── lightcurves/                    # Phase 1: TOI light curves
+│   ├── phase2/sector_N/               # Phase 2: SPOC bulk sector data (gitignored)
+│   ├── phase2/ffi_sector_N/           # Phase 2: TESScut FFI light curves
+│   ├── phase2/qlp_sector_N/           # Phase 2: QLP HLSP light curves
+│   └── phase2/multisector/            # Phase 2: Multi-sector stacked light curves
 ├── results/
 │   ├── plots/                          # Phase-folded light curve PNGs
+│   ├── deep_analysis/                  # TRICERATOPS, multi-sector results
+│   ├── phase2/                         # Phase 2 results (gitignored)
 │   ├── REPORT.md                       # Analysis report
 │   ├── VALIDATION_REPORT.md            # Scored validation results
 │   ├── validation_results.json         # Detailed per-candidate validation
@@ -38,7 +51,9 @@ exoplanet-hunter/
 ├── tests/
 │   ├── conftest.py                     # Shared Python test fixtures
 │   ├── test_validate_candidates.py     # Python validation tests
-│   └── test_analyze_candidates.py      # Python analysis tests
+│   ├── test_analyze_candidates.py      # Python analysis tests
+│   ├── test_flag_discoveries.py        # Phase 2: Discovery flagging tests
+│   └── test_download_sector_bulk.py    # Phase 2: Bulk download tests
 ├── candidates.json                     # BLS output (intermediate)
 ├── Makefile                            # Build & run automation + `make test`
 ├── pytest.ini                          # Python test configuration
@@ -48,12 +63,12 @@ exoplanet-hunter/
 
 ## Testing
 
-Run all tests (98 total: 66 Rust + 32 Python):
+Run all tests (124 total: 70 Rust + 54 Python):
 
 ```bash
 make test          # Run everything
-cargo test         # Rust only (66 tests: bls, validate, crossmatch, io)
-python3.11 -m pytest tests/ -v  # Python only (32 tests)
+cargo test         # Rust only (67 tests + 3 doc-tests)
+python3.11 -m pytest tests/ -v  # Python only (54 tests)
 ```
 
 ### Rust test modules:
@@ -67,8 +82,10 @@ python3.11 -m pytest tests/ -v  # Python only (32 tests)
 
 - `tests/test_validate_candidates.py` — Validation functions, scoring (24 tests)
 - `tests/test_analyze_candidates.py` — Plotting, cross-matching, binning (8 tests)
+- `tests/test_flag_discoveries.py` — Discovery flagging, TIC extraction, classification (18 tests)
+- `tests/test_download_sector_bulk.py` — TOI fetch, deduplication, error handling (4 tests)
 
-## Pipeline Steps
+## Pipeline Steps (Phase 1: TOI Validation)
 
 ### Step 1: Download light curves
 
@@ -120,6 +137,93 @@ Both run the same 5 false positive tests. The Rust version runs tests in paralle
 
 ```bash
 ./target/release/hunt crossmatch -i candidates.json -c data/lightcurves/confirmed_exoplanets.csv -o results/crossmatch_results.csv
+```
+
+## Pipeline Steps (Phase 2: New Planet Discovery)
+
+Phase 2 downloads ALL stars from a TESS sector (not just TOIs), filters out known TOIs,
+and runs BLS on the remaining unstudied stars. Any transit detection on a non-TOI star
+is potentially a new planet candidate.
+
+### Quick start (one command):
+
+```bash
+make phase2 PHASE2_SECTOR=56 PHASE2_LIMIT=1000
+```
+
+### Step-by-step:
+
+```bash
+# Step 1: Download non-TOI stars from a sector
+python3.11 python/download_sector_bulk.py --sector 56 --limit 1000
+# Add --fgk-only for FGK dwarf stars (higher planet yield)
+# Add --author QLP for FFI light curves (~10x more stars)
+
+# Step 2: Run BLS
+./target/release/hunt search -i data/phase2/sector_56 \
+  -o results/phase2/candidates_s56.json --snr-threshold 6.0 --n-periods 15000
+
+# Step 3: Validate
+./target/release/hunt validate -i results/phase2/candidates_s56.json \
+  -l data/phase2/sector_56 -o results/phase2/
+
+# Step 4: Flag discoveries (cross-ref TOI + cTOI + confirmed catalogs)
+python3.11 python/flag_discoveries.py \
+  --input results/phase2/candidates_s56.json \
+  --validation results/phase2/validation_results.json --min-score 60
+```
+
+### Key differences from Phase 1:
+
+- Downloads ALL sector stars via `astroquery.mast`, not just ExoFOP TOIs
+- Filters out known TOIs/cTOIs so only unstudied stars are searched
+- Period agreement test (Test 4) is skipped for non-TOIs (no reference period)
+- Discovery flagging cross-refs against 3 catalogs (TOI, cTOI, confirmed)
+- Planet-sized candidates (Rp/Rs < 0.3) are flagged for ExoFOP cTOI submission
+
+### Sector selection strategy:
+
+- Recent sectors (56+) have 200-second FFI cadence — better sensitivity
+- Higher-numbered sectors have had less community scrutiny
+- Use QLP author for FFI light curves (~160k stars/sector vs ~15k for SPOC)
+
+### Phase 2 FFI: Three Independent Approaches
+
+SPOC 2-minute targets have already been transit-searched by TESS TPS. To find NEW
+planets, we need Full Frame Image (FFI) data — 200k+ stars per sector never searched.
+
+**Approach 1: TESScut** (`download_ffi_tesscut.py`)
+
+- Downloads pixel cutouts from TESS FFI, performs aperture photometry
+- Works for ALL sectors including 56+ (200-second cadence)
+- Requires RA/Dec coordinate input
+- Best for: targeted searches around specific fields
+
+```bash
+python3.11 python/download_ffi_tesscut.py --sector 40 --ra 90.0 --dec -66.5 --limit 100
+```
+
+**Approach 2: QLP Bulk** (`download_qlp_bulk.py`)
+
+- Downloads pre-extracted QLP HLSP light curves from MAST
+- CRITICAL: Must query with `obs_collection="HLSP"` (not "TESS")
+- lightkurve supports `author="QLP"` and `author="TESS-SPOC"` directly
+- Best for: bulk scanning of many FFI stars per sector
+
+```bash
+python3.11 python/download_qlp_bulk.py --sector 56 --limit 500
+```
+
+**Approach 3: Multi-sector Stacking** (`stack_multisector.py`)
+
+- Combines light curves from multiple sectors for the same star
+- Pushes below SPOC's 7.1-sigma threshold with longer baselines
+- Best for: long-period planets (P > 15d) and marginal single-sector signals
+
+```bash
+python3.11 python/stack_multisector.py --tic-ids 14179859 --author QLP
+# Or stack top candidates from a previous run:
+python3.11 python/stack_multisector.py --from-json results/phase2/candidates_s56.json --min-snr 5.0
 ```
 
 ## Validation Pipeline (Rust: `validate.rs` / Python: `validate_candidates.py`)

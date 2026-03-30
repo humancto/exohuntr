@@ -1,4 +1,4 @@
-.PHONY: all setup download hunt analyze clean viral test test-rust test-python
+.PHONY: all setup download hunt analyze clean viral test test-rust test-python phase2 phase2-download phase2-download-fgk phase2-hunt phase2-validate phase2-flag phase2-ffi phase2-qlp phase2-stack
 
 # ============================================================================
 # 🔭 Exoplanet Hunter — Makefile
@@ -54,6 +54,88 @@ analyze:
 		--lightcurves data/lightcurves/ \
 		--crossmatch \
 		--top-n $(TOP_N)
+
+# ============================================================================
+# 🔭 Phase 2: New Planet Discovery
+# ============================================================================
+
+PHASE2_SECTOR ?= 56
+PHASE2_LIMIT ?= 1000
+PHASE2_AUTHOR ?= SPOC
+
+# Download all stars in a sector (filtering out known TOIs)
+phase2-download:
+	@echo "🔭 Phase 2: Downloading non-TOI stars from sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_sector_bulk.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT) \
+		--author $(PHASE2_AUTHOR)
+
+# Download FGK dwarfs only (higher planet yield, slower download)
+phase2-download-fgk:
+	@echo "🔭 Phase 2: Downloading FGK dwarfs from sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_sector_bulk.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT) \
+		--author $(PHASE2_AUTHOR) --fgk-only
+
+# Run BLS on Phase 2 data
+phase2-hunt: target/release/hunt
+	@echo "🔭 Phase 2: Running BLS on sector $(PHASE2_SECTOR) non-TOI stars..."
+	mkdir -p results/phase2
+	./target/release/hunt search \
+		-i data/phase2/sector_$(PHASE2_SECTOR) \
+		-o results/phase2/candidates_s$(PHASE2_SECTOR).json \
+		--snr-threshold $(SNR) --n-periods 15000
+
+# Validate Phase 2 candidates
+phase2-validate: target/release/hunt
+	@echo "🔬 Phase 2: Validating candidates..."
+	./target/release/hunt validate \
+		-i results/phase2/candidates_s$(PHASE2_SECTOR).json \
+		-l data/phase2/sector_$(PHASE2_SECTOR) \
+		-o results/phase2
+
+# Flag new discoveries
+phase2-flag:
+	@echo "🏴 Phase 2: Flagging new discoveries..."
+	python3.11 python/flag_discoveries.py \
+		--input results/phase2/candidates_s$(PHASE2_SECTOR).json \
+		--validation results/phase2/validation_results.json \
+		--min-score 60
+
+# Full Phase 2 pipeline: download → hunt → validate → flag
+phase2: phase2-download phase2-hunt phase2-validate phase2-flag
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "🔭 Phase 2 complete! Check results/phase2/"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ============================================================================
+# 🔭 Phase 2 FFI: Three Independent Approaches
+# ============================================================================
+
+PHASE2_RA ?= 90.0
+PHASE2_DEC ?= -66.5
+PHASE2_RADIUS ?= 0.5
+
+# Approach 1: TESScut FFI extraction (works all sectors, pixel-level photometry)
+phase2-ffi:
+	@echo "🔭 Phase 2 FFI: TESScut extraction — Sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_ffi_tesscut.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT) \
+		--ra $(PHASE2_RA) --dec $(PHASE2_DEC) --radius $(PHASE2_RADIUS)
+
+# Approach 2: QLP bulk download (160k+ stars/sector, pre-extracted light curves)
+phase2-qlp:
+	@echo "🔭 Phase 2 FFI: QLP bulk download — Sector $(PHASE2_SECTOR)..."
+	python3.11 python/download_qlp_bulk.py \
+		--sector $(PHASE2_SECTOR) --limit $(PHASE2_LIMIT)
+
+# Approach 3: Multi-sector stacking (push below SPOC's SNR threshold)
+phase2-stack:
+	@echo "🔭 Phase 2: Multi-sector stacking..."
+	python3.11 python/stack_multisector.py \
+		--sector $(PHASE2_SECTOR) --top-n $(PHASE2_LIMIT) \
+		--author $(PHASE2_AUTHOR)
 
 # Quick hunt: aggressive settings for maximum candidates
 aggressive:

@@ -42,13 +42,14 @@ Applied to 200 unconfirmed TESS Objects of Interest (TOIs), the pipeline:
 
 After deep validation (centroid analysis, Gaia DR3 contamination check, TLS independent confirmation, multi-sector secondary eclipse search), three candidates remain as physically plausible planet signals:
 
-| Target                         | Period   | Rp (R&#8853;) | TLS SDE  | Centroid | Gaia             | Sec. Eclipse     | Assessment    |
-| ------------------------------ | -------- | ------------- | -------- | -------- | ---------------- | ---------------- | ------------- |
-| **TOI 133.01** / TIC 219338557 | 8.2065 d | **1.9**       | **28.4** | Pass     | Clear            | Pass             | **Strong**    |
-| **TOI 155.01** / TIC 129637892 | 5.4504 d | **5.3**       | **20.1** | Pass     | Clear            | Marginal&dagger; | **Strong**    |
-| **TOI 210.01** / TIC 141608198 | 8.9884 d | **2.2**       | **7.1**  | Pass     | 1 faint neighbor | Marginal&dagger; | **Promising** |
+| Target                         | Period   | Rp (R&#8853;) | TLS SDE  | Centroid | Gaia             | Sec. Eclipse     | Assessment |
+| ------------------------------ | -------- | ------------- | -------- | -------- | ---------------- | ---------------- | ---------- |
+| **TOI 133.01** / TIC 219338557 | 8.2065 d | **1.9**       | **28.4** | Pass     | Clear            | Pass             | **Strong** |
+| **TOI 155.01** / TIC 129637892 | 5.4504 d | **5.3**       | **20.1** | Pass     | Clear            | Marginal&dagger; | **Strong** |
+| **TOI 210.01** / TIC 141608198 | 8.9884 d | **2.2**       | **7.1**  | Pass     | 1 faint neighbor | Pass&Dagger;     | **Strong** |
 
-<sup>&dagger; Secondary eclipse depths of 0.002&ndash;0.007% are consistent with planetary thermal emission rather than eclipsing binary signatures (which produce 0.1&ndash;10% depths).</sup>
+<sup>&dagger; Secondary eclipse depth of 0.002% is consistent with planetary thermal emission rather than eclipsing binary signatures (which produce 0.1&ndash;10% depths).</sup>
+<sup>&Dagger; An initial 10-sector analysis showed a marginal 3.9&sigma; secondary eclipse. A follow-up analysis using all 52 available sectors (1.8M data points) yielded no detection (&minus;2.8&sigma;), confirming the earlier signal was noise.</sup>
 
 **Pipeline validation:** TOI 125.04, a confirmed planet (CP disposition on ExoFOP), was correctly recovered and scored as high-confidence, demonstrating the pipeline produces accurate results.
 

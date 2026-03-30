@@ -1,0 +1,2242 @@
+[
+  {
+    "filename": "TOI_6062.01_TIC_122629761.csv",
+    "period_days": 12.389729136807428,
+    "epoch": 3295.715711443045,
+    "snr": 175.19288287449382,
+    "duration_hours": 14.867674964168913,
+    "depth_ppm": 2167556.300359518,
+    "radius_ratio": 1.472262306913927,
+    "n_transits": 2,
+    "bls_power": 87967.08098420264,
+    "odd_even": {
+      "ratio": 0.9324979422017525,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.005014464802312052,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.07181486124011427,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 65
+  },
+  {
+    "filename": "TOI_6040.01_TIC_250839071.csv",
+    "period_days": 3.4928491911820316,
+    "epoch": 3611.2227266999143,
+    "snr": 162.42852204786192,
+    "duration_hours": 4.191419029418438,
+    "depth_ppm": 2504551.1125339107,
+    "radius_ratio": 1.5825773638384668,
+    "n_transits": 7,
+    "bls_power": 70506.91548967196,
+    "odd_even": {
+      "ratio": 1.9717179042241764,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0902653247941861,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 55
+  },
+  {
+    "filename": "TOI_4492.01_TIC_298297931.csv",
+    "period_days": 4.434487985153542,
+    "epoch": 3537.520454905479,
+    "snr": 155.97427532841635,
+    "duration_hours": 3.1928313493105502,
+    "depth_ppm": 2837050.584420452,
+    "radius_ratio": 1.6843546492412018,
+    "n_transits": 5,
+    "bls_power": 71443.57795333418,
+    "odd_even": {
+      "ratio": 0.4872230710466042,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 55
+  },
+  {
+    "filename": "TOI_5949.02_TIC_64282927.csv",
+    "period_days": 13.536771468362488,
+    "epoch": 3376.0210080534193,
+    "snr": 135.36005718296968,
+    "duration_hours": 16.244125762034987,
+    "depth_ppm": 1809747.1501895515,
+    "radius_ratio": 1.3452684305333087,
+    "n_transits": 2,
+    "bls_power": 95845.54691250276,
+    "odd_even": {
+      "ratio": 1.8747193131427793,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0206688938654169,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.1976967725659473,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 35
+  },
+  {
+    "filename": "TOI_5810.01_TIC_379824738.csv",
+    "period_days": 5.682149825300878,
+    "epoch": 3536.749930265057,
+    "snr": 110.78393129273296,
+    "duration_hours": 5.454863832288844,
+    "depth_ppm": 4218527.652765689,
+    "radius_ratio": 2.0539054634441403,
+    "n_transits": 4,
+    "bls_power": 88685.13406288072,
+    "odd_even": {
+      "ratio": 1.031135384307067,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.14805170475829094,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 85
+  },
+  {
+    "filename": "TOI_4496.01_TIC_275758701.csv",
+    "period_days": 1.1880941743560876,
+    "epoch": 2826.0795712915033,
+    "snr": 108.986285641841,
+    "duration_hours": 1.4257130092273052,
+    "depth_ppm": 1399476.9952367186,
+    "radius_ratio": 1.1829949261246722,
+    "n_transits": 23,
+    "bls_power": 78568.81778755781,
+    "odd_even": {
+      "ratio": 0.9778988264508555,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 85
+  },
+  {
+    "filename": "TOI_6058.01_TIC_144006874.csv",
+    "period_days": 7.7264077675320575,
+    "epoch": 3290.7487824599943,
+    "snr": 94.60898117018674,
+    "duration_hours": 9.271689321038467,
+    "depth_ppm": 1236410.0899850633,
+    "radius_ratio": 1.111939787032132,
+    "n_transits": 3,
+    "bls_power": 44696.83693984949,
+    "odd_even": {
+      "ratio": 0.7259611411682961,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 85
+  },
+  {
+    "filename": "TOI_1320.01_TIC_167403519.csv",
+    "period_days": 3.971340256798729,
+    "epoch": 2797.5606650884647,
+    "snr": 79.4876967968969,
+    "duration_hours": 3.81248664652678,
+    "depth_ppm": 3127802.9312188607,
+    "radius_ratio": 1.7685595639443024,
+    "n_transits": 6,
+    "bls_power": 55013.257293391645,
+    "odd_even": {
+      "ratio": 0.9057170570927597,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.10646599210186716,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 85
+  },
+  {
+    "filename": "TOI_1527.01_TIC_202375913.csv",
+    "period_days": 5.060611128522979,
+    "epoch": 2856.6220998757844,
+    "snr": 74.88925042046775,
+    "duration_hours": 3.6436400125365447,
+    "depth_ppm": 1196921.264802078,
+    "radius_ratio": 1.0940389685939336,
+    "n_transits": 5,
+    "bls_power": 38863.3722163938,
+    "odd_even": {
+      "ratio": 0.7729512518864174,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 85
+  },
+  {
+    "filename": "TOI_1361.01_TIC_277447970.csv",
+    "period_days": 2.236823068405201,
+    "epoch": 2825.5509621825595,
+    "snr": 69.36011976457443,
+    "duration_hours": 2.684187682086242,
+    "depth_ppm": 1923153.3020641352,
+    "radius_ratio": 1.386778029125114,
+    "n_transits": 12,
+    "bls_power": 48208.43950405806,
+    "odd_even": {
+      "ratio": 0.6127288489978834,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.034705141861191946,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 55
+  },
+  {
+    "filename": "TOI_7169.01_TIC_372048733.csv",
+    "period_days": 3.4391451827468886,
+    "epoch": 3560.078617957584,
+    "snr": 67.84482063230367,
+    "duration_hours": 3.3015793754370133,
+    "depth_ppm": 2337500.500468252,
+    "radius_ratio": 1.5288886488126767,
+    "n_transits": 7,
+    "bls_power": 18960.456184173316,
+    "odd_even": {
+      "ratio": 0.7325921888270609,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 85
+  },
+  {
+    "filename": "TOI_1653.01_TIC_156724719.csv",
+    "period_days": 10.9614523648857,
+    "epoch": 2913.7479143241794,
+    "snr": 59.824169593662354,
+    "duration_hours": 2.630748567572568,
+    "depth_ppm": 1969607.6507442975,
+    "radius_ratio": 1.4034271091668058,
+    "n_transits": 2,
+    "bls_power": 36488.574608797266,
+    "odd_even": {
+      "ratio": 1.8789839698250919,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.12325822709759197,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 55
+  },
+  {
+    "filename": "TOI_7054.01_TIC_62676654.csv",
+    "period_days": 7.389086660683256,
+    "epoch": 3482.443483017832,
+    "snr": 58.11711216594177,
+    "duration_hours": 4.4334519964099535,
+    "depth_ppm": 3603250.095775266,
+    "radius_ratio": 1.8982228783194208,
+    "n_transits": 3,
+    "bls_power": 15105.616443051233,
+    "odd_even": null,
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 70
+  },
+  {
+    "filename": "TOI_5813.01_TIC_92439980.csv",
+    "period_days": 13.753228039803306,
+    "epoch": 3339.780889705102,
+    "snr": 54.25286526359933,
+    "duration_hours": 16.503873647763967,
+    "depth_ppm": 706480.9189806884,
+    "radius_ratio": 0.8405241929776254,
+    "n_transits": 2,
+    "bls_power": 24428.769732337627,
+    "odd_even": {
+      "ratio": 0.04833377413378642,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 70
+  },
+  {
+    "filename": "TOI_7184.01_TIC_426956677.csv",
+    "period_days": 11.323159861367984,
+    "epoch": 2862.70187596102,
+    "snr": 48.10703439637573,
+    "duration_hours": 13.587791833641582,
+    "depth_ppm": 1612378.2034832002,
+    "radius_ratio": 1.2697945516827516,
+    "n_transits": 2,
+    "bls_power": 52848.51501970973,
+    "odd_even": {
+      "ratio": 0.9314700258689046,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.13373657858941315,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_5808.01_TIC_459735346.csv",
+    "period_days": 10.521640442781408,
+    "epoch": 2800.3674943512547,
+    "snr": 45.990907454173055,
+    "duration_hours": 12.62596853133769,
+    "depth_ppm": 1550756.3576011125,
+    "radius_ratio": 1.2452936832735932,
+    "n_transits": 2,
+    "bls_power": 71619.77507949871,
+    "odd_even": {
+      "ratio": 1.224429476669418,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.11571028818543655,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_7062.01_TIC_23961340.csv",
+    "period_days": 11.260671997030018,
+    "epoch": 3514.2716188132326,
+    "snr": 43.09496993098339,
+    "duration_hours": 13.512806396436025,
+    "depth_ppm": 1881464.730671565,
+    "radius_ratio": 1.3716649484008714,
+    "n_transits": 2,
+    "bls_power": 67289.88009544385,
+    "odd_even": {
+      "ratio": 0.8899520940883704,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_1610.01_TIC_219776325.csv",
+    "period_days": 13.412494181077877,
+    "epoch": 1692.0723753522054,
+    "snr": 42.88929255627736,
+    "duration_hours": 16.094993017293454,
+    "depth_ppm": 1338527.329302593,
+    "radius_ratio": 1.1569474185556543,
+    "n_transits": 2,
+    "bls_power": 31630.45140628943,
+    "odd_even": {
+      "ratio": 1.0567692242419997,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_1176.01_TIC_230088370.csv",
+    "period_days": 13.372966922188676,
+    "epoch": 1695.2549714184158,
+    "snr": 42.716014069627384,
+    "duration_hours": 4.814268091987923,
+    "depth_ppm": 3866408.239338385,
+    "radius_ratio": 1.966318448099998,
+    "n_transits": 2,
+    "bls_power": 37126.79697356708,
+    "odd_even": null,
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_7177.01_TIC_51768374.csv",
+    "period_days": 12.611085467701,
+    "epoch": 2830.1812884627775,
+    "snr": 42.50905858018498,
+    "duration_hours": 15.1333025612412,
+    "depth_ppm": 1326638.6673248792,
+    "radius_ratio": 1.1517980149856482,
+    "n_transits": 2,
+    "bls_power": 40030.34400528161,
+    "odd_even": {
+      "ratio": 0.707825484193038,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.7457907858338053,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.11516909642201567,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 15
+  },
+  {
+    "filename": "TOI_7063.01_TIC_248769312.csv",
+    "period_days": 10.654449254261747,
+    "epoch": 2803.9783789291346,
+    "snr": 42.137674669404866,
+    "duration_hours": 12.785339105114096,
+    "depth_ppm": 1364663.7158196687,
+    "radius_ratio": 1.168188219346381,
+    "n_transits": 2,
+    "bls_power": 63812.63589795758,
+    "odd_even": {
+      "ratio": 0.8484094857616655,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_5811.01_TIC_331484419.csv",
+    "period_days": 6.256488180614209,
+    "epoch": 3536.838101352668,
+    "snr": 41.27075198605453,
+    "duration_hours": 3.00311432669482,
+    "depth_ppm": 899249.4779279875,
+    "radius_ratio": 0.9482876556868108,
+    "n_transits": 4,
+    "bls_power": 46963.37098153121,
+    "odd_even": {
+      "ratio": 1.0905762871985052,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_4310.01_TIC_303317324.csv",
+    "period_days": 12.131909354640946,
+    "epoch": 1359.3302820422025,
+    "snr": 40.45825776066953,
+    "duration_hours": 14.558291225569135,
+    "depth_ppm": 1241620.9031066922,
+    "radius_ratio": 1.1142804418577454,
+    "n_transits": 2,
+    "bls_power": 46624.35205266721,
+    "odd_even": {
+      "ratio": 0.9020570968957525,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_5743.01_TIC_308300731.csv",
+    "period_days": 11.281462874768172,
+    "epoch": 2018.6762072331223,
+    "snr": 38.13139849036191,
+    "duration_hours": 13.537755449721809,
+    "depth_ppm": 1241459.9027210374,
+    "radius_ratio": 1.114208195411,
+    "n_transits": 2,
+    "bls_power": 19421.14976889312,
+    "odd_even": {
+      "ratio": 0.8417579487635358,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.313885528580446,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 35
+  },
+  {
+    "filename": "TOI_1162.01_TIC_13419950.csv",
+    "period_days": 7.323951025697362,
+    "epoch": 2425.302344391746,
+    "snr": 36.86732454635876,
+    "duration_hours": 2.63662236925105,
+    "depth_ppm": 2951480.580194067,
+    "radius_ratio": 1.717987363223044,
+    "n_transits": 3,
+    "bls_power": 34787.41909368974,
+    "odd_even": null,
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 65
+  },
+  {
+    "filename": "TOI_2627.01_TIC_262829328.csv",
+    "period_days": 1.063614526095871,
+    "epoch": 3154.988054969074,
+    "snr": 36.478232453361336,
+    "duration_hours": 1.1487036881835406,
+    "depth_ppm": 1333274.7026330223,
+    "radius_ratio": 1.1546751502621948,
+    "n_transits": 22,
+    "bls_power": 3812.4497156535817,
+    "odd_even": {
+      "ratio": 1.130763403753875,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.053627126214288154,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_5950.01_TIC_258738667.csv",
+    "period_days": 11.067101001084298,
+    "epoch": 3540.31447301415,
+    "snr": 35.164472943817515,
+    "duration_hours": 13.28052120130116,
+    "depth_ppm": 1173081.4477565435,
+    "radius_ratio": 1.0830888457354473,
+    "n_transits": 2,
+    "bls_power": 25273.46059439074,
+    "odd_even": {
+      "ratio": 0.9118349841723664,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.08707647210968056,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.04000478418275455,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 60
+  },
+  {
+    "filename": "TOI_5806.01_TIC_283621618.csv",
+    "period_days": 3.186284503978737,
+    "epoch": 2825.294395611146,
+    "snr": 35.01769618436338,
+    "duration_hours": 1.5294165619097937,
+    "depth_ppm": 2898030.3979388704,
+    "radius_ratio": 1.7023602432913163,
+    "n_transits": 8,
+    "bls_power": 80281.46522491229,
+    "odd_even": {
+      "ratio": 1.0506937033145862,
+      "passed": true
+    },
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.28005131114229964,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 60
+  },
+  {
+    "filename": "TOI_1364.01_TIC_26880783.csv",
+    "period_days": 1.7748940176385468,
+    "epoch": 2391.9859140463573,
+    "snr": 33.25392415773074,
+    "duration_hours": 2.1298728211662565,
+    "depth_ppm": 1071284.1992720198,
+    "radius_ratio": 1.0350285982870326,
+    "n_transits": 15,
+    "bls_power": 45081.223297120254,
+    "odd_even": {
+      "ratio": 1.0196259524361084,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_6019.01_TIC_125520907.csv",
+    "period_days": 13.279555916815651,
+    "epoch": 2863.518359282889,
+    "snr": 32.87648134230125,
+    "duration_hours": 4.780640130053635,
+    "depth_ppm": 2763819.2207273296,
+    "radius_ratio": 1.6624738255766105,
+    "n_transits": 2,
+    "bls_power": 31412.47005255064,
+    "odd_even": null,
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_1684.01_TIC_85031598.csv",
+    "period_days": 1.1552447213211667,
+    "epoch": 1816.3833363242104,
+    "snr": 32.5802741667968,
+    "duration_hours": 1.24766429902686,
+    "depth_ppm": 1203801.1853220137,
+    "radius_ratio": 1.0971787390038203,
+    "n_transits": 21,
+    "bls_power": 120191.312606739,
+    "odd_even": {
+      "ratio": 1.0318677325580914,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.09022917524297257,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_2394.01_TIC_144297844.csv",
+    "period_days": 12.00723305448608,
+    "epoch": 2554.05630689275,
+    "snr": 32.46758198493195,
+    "duration_hours": 14.408679665383298,
+    "depth_ppm": 1038404.9562378008,
+    "radius_ratio": 1.0190215680925503,
+    "n_transits": 2,
+    "bls_power": 8775.452129179714,
+    "odd_even": {
+      "ratio": 0.11218841951080465,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.5472603367661822,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.02380689212451037,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 0
+  },
+  {
+    "filename": "TOI_4542.01_TIC_4464022.csv",
+    "period_days": 9.271015415419834,
+    "epoch": 2447.6966237601932,
+    "snr": 31.387961524656273,
+    "duration_hours": 11.125218498503802,
+    "depth_ppm": 1040240.5359043943,
+    "radius_ratio": 1.0199218283301883,
+    "n_transits": 2,
+    "bls_power": 6746.013724703266,
+    "odd_even": {
+      "ratio": 0.6460116519990982,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.236758796986258,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 50
+  },
+  {
+    "filename": "TOI_7178.01_TIC_419877797.csv",
+    "period_days": 13.284455978651271,
+    "epoch": 2828.783368896207,
+    "snr": 31.209226513821164,
+    "duration_hours": 15.941347174381526,
+    "depth_ppm": 988675.69431263,
+    "radius_ratio": 0.9943217257571264,
+    "n_transits": 2,
+    "bls_power": 68889.87325511464,
+    "odd_even": {
+      "ratio": 0.9843014128728443,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.8220566115138079,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.008993810328501883,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 30
+  },
+  {
+    "filename": "TOI_1263.01_TIC_406672232.csv",
+    "period_days": 12.789127168998172,
+    "epoch": 1683.4859077648446,
+    "snr": 30.422917040199163,
+    "duration_hours": 15.346952602797808,
+    "depth_ppm": 976107.4049224788,
+    "radius_ratio": 0.9879814800503492,
+    "n_transits": 2,
+    "bls_power": 60150.61099485583,
+    "odd_even": {
+      "ratio": 1.1435806035280311,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_7050.01_TIC_50592053.csv",
+    "period_days": 1.417742030256956,
+    "epoch": 3480.091617363238,
+    "snr": 30.209984890431656,
+    "duration_hours": 0.8506452181541736,
+    "depth_ppm": 1684945.6692473097,
+    "radius_ratio": 1.2980545709820177,
+    "n_transits": 18,
+    "bls_power": 23089.88210129483,
+    "odd_even": {
+      "ratio": 0.9662114207890841,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.1514994561559147,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_7174.01_TIC_25472026.csv",
+    "period_days": 4.242451049274987,
+    "epoch": 3585.9939025062695,
+    "snr": 30.08216754024803,
+    "duration_hours": 2.545470629564992,
+    "depth_ppm": 1534920.355717678,
+    "radius_ratio": 1.2389190271029331,
+    "n_transits": 6,
+    "bls_power": 10715.21336469999,
+    "odd_even": {
+      "ratio": 0.6077646728446576,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.1423225765184017,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 50
+  },
+  {
+    "filename": "TOI_1544.01_TIC_455791689.csv",
+    "period_days": 1.291877294230532,
+    "epoch": 2854.133794245372,
+    "snr": 28.598283308308176,
+    "duration_hours": 1.5502527530766383,
+    "depth_ppm": 952687.4108818484,
+    "radius_ratio": 0.976057073578102,
+    "n_transits": 22,
+    "bls_power": 19354.518797194454,
+    "odd_even": {
+      "ratio": 1.1558516748610577,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_7175.01_TIC_26999884.csv",
+    "period_days": 2.991483321075401,
+    "epoch": 3586.493280120248,
+    "snr": 27.405454573776183,
+    "duration_hours": 3.5897799852904813,
+    "depth_ppm": 943164.6040216584,
+    "radius_ratio": 0.9711666201129744,
+    "n_transits": 8,
+    "bls_power": 28785.483494514592,
+    "odd_even": {
+      "ratio": 0.7715345122646763,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.005086970790815063,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.06783276252197823,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 75
+  },
+  {
+    "filename": "TOI_5967.01_TIC_369532319.csv",
+    "period_days": 11.521209497980395,
+    "epoch": 1750.062950988232,
+    "snr": 26.82295912485492,
+    "duration_hours": 2.765090279515295,
+    "depth_ppm": 3198674.811569163,
+    "radius_ratio": 1.788483942217308,
+    "n_transits": 2,
+    "bls_power": 21657.50823014937,
+    "odd_even": null,
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_5008.01_TIC_150531994.csv",
+    "period_days": 2.774605823332963,
+    "epoch": 3099.9546923033827,
+    "snr": 26.167756550706585,
+    "duration_hours": 3.3295269879995555,
+    "depth_ppm": 916747.5129437888,
+    "radius_ratio": 0.9574693274167004,
+    "n_transits": 8,
+    "bls_power": 2427.2866904974326,
+    "odd_even": {
+      "ratio": 0.4875158658204878,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 65
+  },
+  {
+    "filename": "TOI_4630.01_TIC_292202337.csv",
+    "period_days": 9.041327603390789,
+    "epoch": 1610.0745486684116,
+    "snr": 26.110950045522852,
+    "duration_hours": 4.339837249627578,
+    "depth_ppm": 2270856.0510222437,
+    "radius_ratio": 1.5069359810629792,
+    "n_transits": 2,
+    "bls_power": 40947.89228567746,
+    "odd_even": null,
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_5805.01_TIC_378390325.csv",
+    "period_days": 10.287501539665246,
+    "epoch": 3346.570871591258,
+    "snr": 25.89354879485609,
+    "duration_hours": 4.938000739039318,
+    "depth_ppm": 619605.1277933437,
+    "radius_ratio": 0.7871500033623475,
+    "n_transits": 2,
+    "bls_power": 15050.619519173144,
+    "odd_even": {
+      "ratio": 0.3598915777264328,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.062030430862630735,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.018180737349767218,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_7052.01_TIC_22038430.csv",
+    "period_days": 9.548717940494386,
+    "epoch": 2013.6128408528964,
+    "snr": 25.642713397843114,
+    "duration_hours": 11.458461528593263,
+    "depth_ppm": 785820.001640505,
+    "radius_ratio": 0.8864648902469319,
+    "n_transits": 2,
+    "bls_power": 29554.40751199389,
+    "odd_even": {
+      "ratio": 0.8135003885004214,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_1747.01_TIC_233071822.csv",
+    "period_days": 10.272331476293097,
+    "epoch": 1691.726414510268,
+    "snr": 24.614735695659476,
+    "duration_hours": 12.326797771551714,
+    "depth_ppm": 899965.9708376136,
+    "radius_ratio": 0.9486653629376448,
+    "n_transits": 2,
+    "bls_power": 18639.108481302697,
+    "odd_even": {
+      "ratio": 0.8258052761370739,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_3521.01_TIC_429036977.csv",
+    "period_days": 3.244407752557197,
+    "epoch": 2798.4346839213854,
+    "snr": 23.03150979518136,
+    "duration_hours": 1.1679867909205908,
+    "depth_ppm": 1745968.7884456469,
+    "radius_ratio": 1.32135112231596,
+    "n_transits": 8,
+    "bls_power": 4216.228037759089,
+    "odd_even": {
+      "ratio": 0.7022351202807221,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.9076952902859075,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 35
+  },
+  {
+    "filename": "TOI_5809.01_TIC_283471501.csv",
+    "period_days": 11.835709069121778,
+    "epoch": 3343.805654345669,
+    "snr": 22.844340532447564,
+    "duration_hours": 14.202850882946134,
+    "depth_ppm": 335488.8647587732,
+    "radius_ratio": 0.579214006010536,
+    "n_transits": 2,
+    "bls_power": 13500.617030419802,
+    "odd_even": {
+      "ratio": 0.2116834294486238,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.3729299609894314,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 20
+  },
+  {
+    "filename": "TOI_1655.01_TIC_266500992.csv",
+    "period_days": 3.27809584313952,
+    "epoch": 2914.729645793042,
+    "snr": 21.66821700093713,
+    "duration_hours": 2.360229007060454,
+    "depth_ppm": 960771.4524445856,
+    "radius_ratio": 0.9801894982321456,
+    "n_transits": 7,
+    "bls_power": 17016.965601860506,
+    "odd_even": {
+      "ratio": 0.7311911464905302,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.22290981195409518,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_5149.01_TIC_286094277.csv",
+    "period_days": 12.230776812393252,
+    "epoch": 2431.4888007960817,
+    "snr": 21.365677755919418,
+    "duration_hours": 8.806159304923142,
+    "depth_ppm": 1187173.044369133,
+    "radius_ratio": 1.0895747080256282,
+    "n_transits": 2,
+    "bls_power": 15959.840673311804,
+    "odd_even": null,
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.017256389089045143,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 25
+  },
+  {
+    "filename": "TOI_1381.01_TIC_275722992.csv",
+    "period_days": 6.554183602934884,
+    "epoch": 2797.726012317263,
+    "snr": 21.220306631280444,
+    "duration_hours": 2.359506097056558,
+    "depth_ppm": 1171255.5829125098,
+    "radius_ratio": 1.0822456204173383,
+    "n_transits": 4,
+    "bls_power": 15438.150768279507,
+    "odd_even": {
+      "ratio": 2.4762677097734915,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.5240907145912536,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 5
+  },
+  {
+    "filename": "TOI_2144.01_TIC_428988981.csv",
+    "period_days": 11.436513141203775,
+    "epoch": 1790.8303320539242,
+    "snr": 19.602847006247423,
+    "duration_hours": 13.723815769444531,
+    "depth_ppm": 888905.5230299062,
+    "radius_ratio": 0.9428178631262276,
+    "n_transits": 2,
+    "bls_power": 18097.378880626176,
+    "odd_even": null,
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.012159762979460309,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 60
+  },
+  {
+    "filename": "TOI_1706.01_TIC_230377505.csv",
+    "period_days": 7.402729327603969,
+    "epoch": 1688.6847102744082,
+    "snr": 19.49008852333015,
+    "duration_hours": 8.883275193124764,
+    "depth_ppm": 757597.1613431673,
+    "radius_ratio": 0.8704005752199199,
+    "n_transits": 3,
+    "bls_power": 11887.575007458854,
+    "odd_even": {
+      "ratio": 0.8763793967194096,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_1706.02_TIC_230377505.csv",
+    "period_days": 7.402729327603969,
+    "epoch": 1688.6847102744082,
+    "snr": 19.49008852333015,
+    "duration_hours": 8.883275193124764,
+    "depth_ppm": 757597.1613431673,
+    "radius_ratio": 0.8704005752199199,
+    "n_transits": 3,
+    "bls_power": 11887.575007458854,
+    "odd_even": {
+      "ratio": 0.8763793967194096,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_5968.01_TIC_431810418.csv",
+    "period_days": 9.121736744917824,
+    "epoch": 2825.2620084944083,
+    "snr": 19.244832208826825,
+    "duration_hours": 10.946084093901389,
+    "depth_ppm": 529105.1361484743,
+    "radius_ratio": 0.7273961342683052,
+    "n_transits": 3,
+    "bls_power": 24449.00599453045,
+    "odd_even": {
+      "ratio": 1.0939806927883873,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.003715576278338676,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.020754426093869016,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 75
+  },
+  {
+    "filename": "TOI_5968.02_TIC_431810418.csv",
+    "period_days": 9.121736744917824,
+    "epoch": 2825.2620084944083,
+    "snr": 19.244832208826825,
+    "duration_hours": 10.946084093901389,
+    "depth_ppm": 529105.1361484743,
+    "radius_ratio": 0.7273961342683052,
+    "n_transits": 3,
+    "bls_power": 24449.00599453045,
+    "odd_even": {
+      "ratio": 1.0939806927883873,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.003715576278338676,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.020754426093869016,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 75
+  },
+  {
+    "filename": "TOI_5952.01_TIC_287643871.csv",
+    "period_days": 13.486922964461495,
+    "epoch": 2836.9952961227623,
+    "snr": 19.100500358585567,
+    "duration_hours": 3.2368615114707593,
+    "depth_ppm": 1636568.53680538,
+    "radius_ratio": 1.2792843846484565,
+    "n_transits": 2,
+    "bls_power": 25334.085648078453,
+    "odd_even": null,
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_6650.01_TIC_64837857.csv",
+    "period_days": 6.896507964462483,
+    "epoch": 2857.2199774063456,
+    "snr": 19.09498746810513,
+    "duration_hours": 6.620647645883983,
+    "depth_ppm": 917895.3475012853,
+    "radius_ratio": 0.9580685505230224,
+    "n_transits": 4,
+    "bls_power": 17228.14744518719,
+    "odd_even": {
+      "ratio": 0.7005309734512706,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.22965924048166828,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_6650.02_TIC_64837857.csv",
+    "period_days": 6.896507964462483,
+    "epoch": 2857.2199774063456,
+    "snr": 19.09498746810513,
+    "duration_hours": 6.620647645883983,
+    "depth_ppm": 917895.3475012853,
+    "radius_ratio": 0.9580685505230224,
+    "n_transits": 4,
+    "bls_power": 17228.14744518719,
+    "odd_even": {
+      "ratio": 0.7005309734512706,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.22965924048166828,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_6650.03_TIC_64837857.csv",
+    "period_days": 6.896507964462483,
+    "epoch": 2857.2199774063456,
+    "snr": 19.09498746810513,
+    "duration_hours": 6.620647645883983,
+    "depth_ppm": 917895.3475012853,
+    "radius_ratio": 0.9580685505230224,
+    "n_transits": 4,
+    "bls_power": 17228.14744518719,
+    "odd_even": {
+      "ratio": 0.7005309734512706,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.22965924048166828,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_6650.04_TIC_64837857.csv",
+    "period_days": 6.896507964462483,
+    "epoch": 2857.2199774063456,
+    "snr": 19.09498746810513,
+    "duration_hours": 6.620647645883983,
+    "depth_ppm": 917895.3475012853,
+    "radius_ratio": 0.9580685505230224,
+    "n_transits": 4,
+    "bls_power": 17228.14744518719,
+    "odd_even": {
+      "ratio": 0.7005309734512706,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.22965924048166828,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_5807.01_TIC_188646744.csv",
+    "period_days": 8.548274477152804,
+    "epoch": 2803.300984171254,
+    "snr": 18.280401136176646,
+    "duration_hours": 10.257929372583366,
+    "depth_ppm": 604545.110759386,
+    "radius_ratio": 0.7775249904404269,
+    "n_transits": 3,
+    "bls_power": 86079.6300692403,
+    "odd_even": {
+      "ratio": 0.6810035842291411,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 65
+  },
+  {
+    "filename": "TOI_6731.01_TIC_9032367.csv",
+    "period_days": 1.6317056026426804,
+    "epoch": 3183.7224798857333,
+    "snr": 17.88746252899478,
+    "duration_hours": 1.3706327062198516,
+    "depth_ppm": 855823.3490369818,
+    "radius_ratio": 0.9251072094827614,
+    "n_transits": 14,
+    "bls_power": 879.5838603174025,
+    "odd_even": {
+      "ratio": 0.8953066181332645,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_2324.01_TIC_69819610.csv",
+    "period_days": 2.073126946264773,
+    "epoch": 2061.9287519503305,
+    "snr": 17.51208651178546,
+    "duration_hours": 2.487752335517728,
+    "depth_ppm": 681349.7322811378,
+    "radius_ratio": 0.8254391148238238,
+    "n_transits": 11,
+    "bls_power": 27003.372759213813,
+    "odd_even": {
+      "ratio": 0.7794442690245075,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.6199465880835738,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 50
+  },
+  {
+    "filename": "TOI_5825.01_TIC_269243313.csv",
+    "period_days": 10.13680360513838,
+    "epoch": 2802.934779561745,
+    "snr": 17.420124861875365,
+    "duration_hours": 12.164164326166055,
+    "depth_ppm": 523291.4685660467,
+    "radius_ratio": 0.7233888778285485,
+    "n_transits": 2,
+    "bls_power": 16482.323332248274,
+    "odd_even": {
+      "ratio": 0.9169330491918657,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0014546450241095796,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_5953.01_TIC_27863043.csv",
+    "period_days": 12.271454442644467,
+    "epoch": 3559.459568013127,
+    "snr": 17.133163107488254,
+    "duration_hours": 14.725745331173364,
+    "depth_ppm": 228313.97635033945,
+    "radius_ratio": 0.4778221178957075,
+    "n_transits": 2,
+    "bls_power": 8397.200877235244,
+    "odd_even": null,
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 80
+  },
+  {
+    "filename": "TOI_6729.01_TIC_426032475.csv",
+    "period_days": 6.19676256289284,
+    "epoch": 1330.8744441941133,
+    "snr": 16.764798786336854,
+    "duration_hours": 7.436115075471408,
+    "depth_ppm": 569558.5403628612,
+    "radius_ratio": 0.7546910231100283,
+    "n_transits": 4,
+    "bls_power": 26429.355415832153,
+    "odd_even": {
+      "ratio": 1.051976539772113,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_2039.01_TIC_237071229.csv",
+    "period_days": 11.244066885755004,
+    "epoch": 2797.3266108181065,
+    "snr": 16.323039047334447,
+    "duration_hours": 4.047864078871802,
+    "depth_ppm": 840820.2266872033,
+    "radius_ratio": 0.9169625001531978,
+    "n_transits": 2,
+    "bls_power": 11487.864355191818,
+    "odd_even": {
+      "ratio": 0.3132466387481219,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.5863453815258998,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 20
+  },
+  {
+    "filename": "TOI_6082.01_TIC_199712572.csv",
+    "period_days": 12.611085467701,
+    "epoch": 1723.0931244929343,
+    "snr": 15.684588100199491,
+    "duration_hours": 15.1333025612412,
+    "depth_ppm": 763102.3712715221,
+    "radius_ratio": 0.8735573085216116,
+    "n_transits": 2,
+    "bls_power": 28962.104270948304,
+    "odd_even": {
+      "ratio": 1.2667601027797788,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.04796105273271142,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_7185.01_TIC_77490011.csv",
+    "period_days": 12.449293282711118,
+    "epoch": 3610.560691363243,
+    "snr": 15.370180459489012,
+    "duration_hours": 14.939151939253344,
+    "depth_ppm": 476740.3652720947,
+    "radius_ratio": 0.6904638768770562,
+    "n_transits": 2,
+    "bls_power": 937.8856950927868,
+    "odd_even": {
+      "ratio": 1.0742099396433875,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.30593574839727977,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.025184655276965784,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 30
+  },
+  {
+    "filename": "TOI_6647.01_TIC_439943973.csv",
+    "period_days": 3.997800284503456,
+    "epoch": 3586.932633150293,
+    "snr": 15.350146246365265,
+    "duration_hours": 3.837888273123318,
+    "depth_ppm": 268505.79184724326,
+    "radius_ratio": 0.5181754450446714,
+    "n_transits": 6,
+    "bls_power": 8119.88065234053,
+    "odd_even": {
+      "ratio": 0.21642894623833434,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.049378062570269006,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.007341912396628958,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_2166.01_TIC_233680651.csv",
+    "period_days": 10.49450363644644,
+    "epoch": 2393.959645193016,
+    "snr": 14.109866513852117,
+    "duration_hours": 12.593404363735727,
+    "depth_ppm": 513014.74254976865,
+    "radius_ratio": 0.716250474729175,
+    "n_transits": 2,
+    "bls_power": 12183.128073397647,
+    "odd_even": {
+      "ratio": 0.7127459117521359,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.010762689343697146,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.012766608367775656,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 75
+  },
+  {
+    "filename": "TOI_6247.01_TIC_418301643.csv",
+    "period_days": 11.466085806382758,
+    "epoch": 1773.3429764264724,
+    "snr": 13.977873567425204,
+    "duration_hours": 13.759302967659307,
+    "depth_ppm": 497677.3938110466,
+    "radius_ratio": 0.7054625389140423,
+    "n_transits": 2,
+    "bls_power": 14543.48388030679,
+    "odd_even": {
+      "ratio": 4.987758764344845,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.17365960289052937,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.05166324567101621,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_1318.01_TIC_167092385.csv",
+    "period_days": 4.988320019888346,
+    "epoch": 2799.0494098728905,
+    "snr": 13.93175278734804,
+    "duration_hours": 2.3943936095464062,
+    "depth_ppm": 672699.3701380859,
+    "radius_ratio": 0.8201825224534389,
+    "n_transits": 5,
+    "bls_power": 11212.441139973407,
+    "odd_even": {
+      "ratio": 0.7625548512923553,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.10958205912389757,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_5172.01_TIC_53287554.csv",
+    "period_days": 4.723255600534397,
+    "epoch": 2556.839035431972,
+    "snr": 13.430451746130826,
+    "duration_hours": 2.267162688256511,
+    "depth_ppm": 822772.3007477719,
+    "radius_ratio": 0.9070679691995368,
+    "n_transits": 5,
+    "bls_power": 9038.729025992316,
+    "odd_even": {
+      "ratio": 0.5369109381753071,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 65
+  },
+  {
+    "filename": "TOI_7192.01_TIC_123234747.csv",
+    "period_days": 12.737331843938303,
+    "epoch": 1695.2019349872548,
+    "snr": 13.103100856260824,
+    "duration_hours": 15.284798212725963,
+    "depth_ppm": 439175.823545408,
+    "radius_ratio": 0.6627034205022696,
+    "n_transits": 2,
+    "bls_power": 8943.19360110252,
+    "odd_even": {
+      "ratio": 1.6307883177408753,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.33249010909951743,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 20
+  },
+  {
+    "filename": "TOI_1011.01_TIC_114018671.csv",
+    "period_days": 2.469284525003991,
+    "epoch": 2231.0855192988456,
+    "snr": 12.981678452410454,
+    "duration_hours": 2.370513144003832,
+    "depth_ppm": 214037.4007503823,
+    "radius_ratio": 0.4626417628688339,
+    "n_transits": 10,
+    "bls_power": 13809.255225133496,
+    "odd_even": {
+      "ratio": 2.9916201117331602,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.30601885424345854,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.0028237802254352795,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 0
+  },
+  {
+    "filename": "TOI_2295.01_TIC_48018596.csv",
+    "period_days": 11.182015503034425,
+    "epoch": 1722.2130978365103,
+    "snr": 12.231500079465125,
+    "duration_hours": 10.734734882913044,
+    "depth_ppm": 629846.4135156105,
+    "radius_ratio": 0.7936286370309545,
+    "n_transits": 2,
+    "bls_power": 18965.768318021594,
+    "odd_even": {
+      "ratio": 2.5627007448915062,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.33776066312047515,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 20
+  },
+  {
+    "filename": "TOI_1664.01_TIC_353782445.csv",
+    "period_days": 12.385159101045746,
+    "epoch": 1683.664685675849,
+    "snr": 12.096920234559532,
+    "duration_hours": 14.862190921254896,
+    "depth_ppm": 482380.2972729454,
+    "radius_ratio": 0.6945360302194159,
+    "n_transits": 2,
+    "bls_power": 18725.79238571544,
+    "odd_even": {
+      "ratio": 1.2007536536926757,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.10131823863991385,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 75
+  },
+  {
+    "filename": "TOI_5171.01_TIC_110996418.csv",
+    "period_days": 9.91854420218358,
+    "epoch": 1580.5843123512398,
+    "snr": 11.405471895750557,
+    "duration_hours": 2.3804506085240593,
+    "depth_ppm": 947313.4050743156,
+    "radius_ratio": 0.973300264601996,
+    "n_transits": 2,
+    "bls_power": 1280.509605236323,
+    "odd_even": {
+      "ratio": 0.7065423297612514,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.3258804011763559,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 50
+  },
+  {
+    "filename": "TOI_5703.01_TIC_10792081.csv",
+    "period_days": 6.527639487317757,
+    "epoch": 3436.912085312085,
+    "snr": 11.276683198987572,
+    "duration_hours": 7.049850646303177,
+    "depth_ppm": 453621.8204409734,
+    "radius_ratio": 0.6735145287527013,
+    "n_transits": 2,
+    "bls_power": 10482.776539621223,
+    "odd_even": {
+      "ratio": 0.13851851851849273,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.016914718782232607,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_5526.01_TIC_335540507.csv",
+    "period_days": 11.748700718288625,
+    "epoch": 2283.5414463233883,
+    "snr": 10.08195677403824,
+    "duration_hours": 12.688596775751712,
+    "depth_ppm": 364696.91372912936,
+    "radius_ratio": 0.6039014106036923,
+    "n_transits": 2,
+    "bls_power": 6198.774053870219,
+    "odd_even": {
+      "ratio": 0.8019681556833457,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 95
+  },
+  {
+    "filename": "TOI_900.01_TIC_210873792.csv",
+    "period_days": 10.701722109403017,
+    "epoch": 1631.231606524274,
+    "snr": 10.020047698416631,
+    "duration_hours": 5.136826612513447,
+    "depth_ppm": 585817.0987710612,
+    "radius_ratio": 0.7653868948257875,
+    "n_transits": 2,
+    "bls_power": 2874.192705508429,
+    "odd_even": {
+      "ratio": 0.35842693152636185,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.017283361184178513,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 65
+  },
+  {
+    "filename": "TOI_7172.01_TIC_302173245.csv",
+    "period_days": 2.7542087456851094,
+    "epoch": 3585.738654894011,
+    "snr": 9.895661513538856,
+    "duration_hours": 2.313535346375492,
+    "depth_ppm": 456774.04857145424,
+    "radius_ratio": 0.675850611134927,
+    "n_transits": 9,
+    "bls_power": 3600.7783023656248,
+    "odd_even": {
+      "ratio": 0.6883185063572446,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.3055052227668354,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 15
+  },
+  {
+    "filename": "TOI_6911.01_TIC_428812049.csv",
+    "period_days": 10.721480983120587,
+    "epoch": 2724.476045033725,
+    "snr": 9.141375992007234,
+    "duration_hours": 12.865777179744708,
+    "depth_ppm": 331616.33551895636,
+    "radius_ratio": 0.5758613856814471,
+    "n_transits": 2,
+    "bls_power": 14988.989085371086,
+    "odd_even": {
+      "ratio": 52.489361703703786,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.5687026969407939,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 15
+  },
+  {
+    "filename": "TOI_7069.01_TIC_160428500.csv",
+    "period_days": 9.669246092709294,
+    "epoch": 1720.264747973179,
+    "snr": 9.134095756275066,
+    "duration_hours": 3.4809285933753458,
+    "depth_ppm": 618001.2699854029,
+    "radius_ratio": 0.7861305680263317,
+    "n_transits": 2,
+    "bls_power": 6077.684642467953,
+    "odd_even": null,
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 75
+  },
+  {
+    "filename": "TOI_6459.01_TIC_238317637.csv",
+    "period_days": 5.14342883334377,
+    "epoch": 2231.027501742093,
+    "snr": 8.916674679120574,
+    "duration_hours": 2.4688458400050095,
+    "depth_ppm": 514014.3482159215,
+    "radius_ratio": 0.7169479396831555,
+    "n_transits": 4,
+    "bls_power": 6673.453924540961,
+    "odd_even": {
+      "ratio": 0.825905039112014,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.46119965227468324,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 45
+  },
+  {
+    "filename": "TOI_5113.01_TIC_2685481.csv",
+    "period_days": 9.630086129887925,
+    "epoch": 2913.8533221516705,
+    "snr": 8.883936519898027,
+    "duration_hours": 3.4668310067596524,
+    "depth_ppm": 616063.9060895945,
+    "radius_ratio": 0.7848973857069436,
+    "n_transits": 2,
+    "bls_power": 7140.742660094912,
+    "odd_even": {
+      "ratio": 0.4436443644358782,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 60
+  },
+  {
+    "filename": "TOI_7167.01_TIC_456482025.csv",
+    "period_days": 12.453886983530412,
+    "epoch": 3564.9402111896393,
+    "snr": 8.698449923829443,
+    "duration_hours": 2.9889328760472993,
+    "depth_ppm": 832363.3683121898,
+    "radius_ratio": 0.9123395027686731,
+    "n_transits": 2,
+    "bls_power": 2879.5977863557805,
+    "odd_even": {
+      "ratio": 2.8277044854873066,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 60
+  },
+  {
+    "filename": "TOI_1737.01_TIC_233009109.csv",
+    "period_days": 10.475163064709417,
+    "epoch": 1714.4542207522109,
+    "snr": 8.413990357177365,
+    "duration_hours": 10.05615654212104,
+    "depth_ppm": 298523.8589820173,
+    "radius_ratio": 0.5463733695761693,
+    "n_transits": 2,
+    "bls_power": 18285.83501615557,
+    "odd_even": {
+      "ratio": 1.2568187303887015,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.6007693844928327,
+      "passed": false
+    },
+    "transit_shape": {
+      "flatness": 0.036266319709315376,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 25
+  },
+  {
+    "filename": "TOI_7183.01_TIC_422159302.csv",
+    "period_days": 0.6910106121061083,
+    "epoch": 3584.9177183968136,
+    "snr": 8.363831876981447,
+    "duration_hours": 0.331685093810932,
+    "depth_ppm": 456641.76734451647,
+    "radius_ratio": 0.6757527412778408,
+    "n_transits": 37,
+    "bls_power": 10134.436471789348,
+    "odd_even": null,
+    "secondary_eclipse": null,
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 55
+  },
+  {
+    "filename": "TOI_1654.01_TIC_258829450.csv",
+    "period_days": 1.830083280554203,
+    "epoch": 2391.8064676599215,
+    "snr": 8.02742666882217,
+    "duration_hours": 2.196099936665044,
+    "depth_ppm": 269039.4246238945,
+    "radius_ratio": 0.5186901046134335,
+    "n_transits": 15,
+    "bls_power": 8866.536060720155,
+    "odd_even": {
+      "ratio": 0.9709521247986432,
+      "passed": true
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.0027081330067814102,
+      "passed": false
+    },
+    "period_agreement": null,
+    "planet_score": 70
+  },
+  {
+    "filename": "TOI_7182.01_TIC_408469564.csv",
+    "period_days": 7.98430988919519,
+    "epoch": 2448.01512659934,
+    "snr": 6.598972260479721,
+    "duration_hours": 9.581171867034229,
+    "depth_ppm": 283759.8637246661,
+    "radius_ratio": 0.5326911522868257,
+    "n_transits": 2,
+    "bls_power": 16840.764790955745,
+    "odd_even": {
+      "ratio": 0.20134907251293577,
+      "passed": false
+    },
+    "secondary_eclipse": {
+      "depth_ratio": 0.0,
+      "passed": true
+    },
+    "transit_shape": {
+      "flatness": 0.5,
+      "passed": true
+    },
+    "period_agreement": null,
+    "planet_score": 60
+  }
+]

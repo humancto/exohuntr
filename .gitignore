@@ -25,5 +25,19 @@ Thumbs.db
 docs/candidates.json
 docs/validation_results.json
 
+# Unpublished submission materials (keep local)
+rnaas_submission/
+METHODOLOGY.md
+
+# New sector data (re-downloadable)
+data/lightcurves_new_sectors/
+candidates_new_sectors.json
+
+# Temporary analysis scripts
+python/tls_remaining.py
+
+# TRILEGAL cache files
+*_TRILEGAL.csv
+
 # Keep the data directory structure
 !data/lightcurves/.gitkeep

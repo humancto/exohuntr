@@ -1,0 +1,12 @@
+Full-Sector Secondary Eclipse Search — TOI 210.01 / TIC 141608198
+============================================================
+
+Period: 8.9884 d
+Sectors downloaded: 52
+Total data points: 1831745
+
+Secondary eclipse depth: -0.00009102 (-0.009102%)
+Depth uncertainty: 0.00003216
+Significance: -2.8 sigma
+
+Verdict: NO SECONDARY ECLIPSE DETECTED (< 3 sigma)

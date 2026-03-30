@@ -1,0 +1,44 @@
+TRICERATOPS Statistical Validation — TOI 133.01 / TIC 219338557
+============================================================
+
+Period: 8.2065 d
+Transit depth: 0.000707 (fractional, = 707 ppm)
+N (MC draws): 50000
+Note: TRILEGAL background population simulated with local model
+
+FPP  = 0.5664808499533157
+NFPP = 0.10438691558655598
+
+Verdict: NOT VALIDATED
+
+Scenario probabilities:
+  TP           ID=219338557  prob=0.356710
+  EB           ID=219338557  prob=0.018826
+  EBx2P        ID=219338557  prob=0.089822
+  PTP          ID=219338557  prob=0.066987
+  PEB          ID=219338557  prob=0.004559
+  PEBx2P       ID=219338557  prob=0.020569
+  STP          ID=219338557  prob=0.095057
+  SEB          ID=219338557  prob=0.010870
+  SEBx2P       ID=219338557  prob=0.014562
+  DTP          ID=219338557  prob=0.009822
+  DEB          ID=219338557  prob=0.000478
+  DEBx2P       ID=219338557  prob=0.001780
+  BTP          ID=219338557  prob=0.117008
+  BEB          ID=219338557  prob=0.070761
+  BEBx2P       ID=219338557  prob=0.017803
+  NTP          ID=219338555  prob=0.051539
+  NEB          ID=219338555  prob=0.030430
+  NEBx2P       ID=219338555  prob=0.002907
+  NTP          ID=219336381  prob=0.003192
+  NEB          ID=219336381  prob=0.001528
+  NEBx2P       ID=219336381  prob=0.000369
+  NTP          ID=219336376  prob=0.001935
+  NEB          ID=219336376  prob=0.000867
+  NEBx2P       ID=219336376  prob=0.000215
+  NTP          ID=219338564  prob=0.003430
+  NEB          ID=219338564  prob=0.002274
+  NEBx2P       ID=219338564  prob=0.000580
+  NTP          ID=219338550  prob=0.003505
+  NEB          ID=219338550  prob=0.001318
+  NEBx2P       ID=219338550  prob=0.000298

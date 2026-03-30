@@ -88,11 +88,11 @@ We selected the 3 candidates with the smallest, most physically plausible planet
 
 ## Summary Scorecard
 
-| Target         | Centroid | Gaia | NASA DV | TLS         | Sec. Eclipse | Overall                |
-| -------------- | -------- | ---- | ------- | ----------- | ------------ | ---------------------- |
-| **TOI 133.01** | ✅       | ✅   | ✅      | ✅ SDE=28.4 | ✅           | **STRONG**             |
-| **TOI 210.01** | ✅       | ⚠️   | ✅      | ✅ SDE=7.1  | ⚠️ 3.9σ      | **PROMISING**          |
-| **TOI 155.01** | ✅       | ✅   | ✅      | ✅ SDE=20.1 | ⚠️ 5.9σ      | **STRONG (w/ caveat)** |
+| Target         | Centroid | Gaia | NASA DV | TLS         | Sec. Eclipse    | Overall                |
+| -------------- | -------- | ---- | ------- | ----------- | --------------- | ---------------------- |
+| **TOI 133.01** | ✅       | ✅   | ✅      | ✅ SDE=28.4 | ✅              | **STRONG**             |
+| **TOI 210.01** | ✅       | ⚠️   | ✅      | ✅ SDE=7.1  | ✅ (52 sectors) | **STRONG**             |
+| **TOI 155.01** | ✅       | ✅   | ✅      | ✅ SDE=20.1 | ⚠️ 5.9σ         | **STRONG (w/ caveat)** |
 
 ---
 

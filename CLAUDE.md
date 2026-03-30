@@ -57,12 +57,14 @@ python3.11 -m pytest tests/ -v  # Python only (32 tests)
 ```
 
 ### Rust test modules:
+
 - `bls::tests` — BLS period recovery, SNR estimation, phase math, median (18 tests)
 - `validate::tests` — All 5 false-positive tests, scoring, integration (23 tests)
 - `crossmatch::tests` — Catalog indexing, lookup, CSV loading (13 tests)
 - `io::tests` — CSV parsing, NaN handling, file discovery (8 tests)
 
 ### Python test files:
+
 - `tests/test_validate_candidates.py` — Validation functions, scoring (24 tests)
 - `tests/test_analyze_candidates.py` — Plotting, cross-matching, binning (8 tests)
 
@@ -231,7 +233,39 @@ lc.to_csv('data/lightcurves/custom_target.csv')
 5. **Reproducibility matters** — BLS results are deterministic; running 4x gives same top candidates within ~1% SNR
 6. **Cross-reference ExoFOP** before making any claims about a specific target
 
+## Project Roadmap
+
+### Phase 1: Independent Validation Pipeline + RNAAS (DONE)
+
+- Pipeline built: download → BLS (Rust) → validate (Rust) → deep validate (Python)
+- 200 unconfirmed TOIs → 197 detections → 17 high-confidence → 3 deep-validated
+- TOI 133.01 passes all tests (TLS SDE=28.4, no centroid offset, no Gaia contaminants, no secondary eclipse)
+- TOI 210.01 upgraded to Strong (52-sector secondary eclipse = no detection)
+- TRICERATOPS run on TOI 133.01: FPP=0.566, TP most probable scenario (35.7%)
+- RNAAS LaTeX note ready in `rnaas_submission/` (local, not committed)
+- **TODO:** Submit RNAAS note at https://aas.msubmit.net, merge PR #4
+
+### Phase 2: New Planet Discovery (NEXT)
+
+- Current pipeline only re-validates existing TOIs (stars TESS already flagged)
+- To discover NEW planets: download full TESS sectors (all stars, not just TOI list)
+- Target: stars with no existing TOI designation
+- Any BLS detection on a non-TOI star = potentially new → submit as community TOI (cTOI) to ExoFOP
+- Focus on less-studied sectors or southern continuous viewing zone
+
+### Phase 3: Follow-up + Collaboration (LATER)
+
+- Run VESPA/TRICERATOPS with real TRILEGAL data on Phase 2 discoveries
+- Contact Planet Hunters TESS team (Nora Eisner) for collaboration
+- Coordinate ground-based RV follow-up for mass determination
+- Write discovery paper if new candidates are found
+
+## ExoFOP vs RNAAS
+
+- **RNAAS** (Research Notes of the AAS): Publish methodology papers. 1500-word limit, gets a DOI, editor-reviewed. For reporting what the pipeline does and its results. https://aas.msubmit.net
+- **ExoFOP-TESS**: Submit candidate observations. Upload phase-folded LCs, validation results, plots as supporting observations for existing TOIs, or submit new cTOIs. https://exofop.ipac.caltech.edu/tess/
+
 ## Dependencies
 
 - **Rust** 1.75+ with: rayon, serde, serde_json, csv, clap, indicatif, anyhow, ordered-float
-- **Python** 3.11+ with: lightkurve, astroquery, pandas, numpy, matplotlib, tqdm, scipy
+- **Python** 3.11+ with: lightkurve, astroquery, pandas, numpy, matplotlib, tqdm, scipy, transitleastsquares, triceratops

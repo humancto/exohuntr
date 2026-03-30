@@ -166,7 +166,7 @@ if __name__ == '__main__':
             f.write(f"Period: {PERIOD} d\n")
             f.write(f"Transit depth: {TDEPTH} (fractional, = {TDEPTH*1e6:.0f} ppm)\n")
             f.write(f"Sectors used: {sector_numbers}\n")
-            f.write(f"N (MC draws): 100000\n\n")
+            f.write(f"N (MC draws): 50000\n\n")
             f.write(f"FPP  = {fpp:.6f} ({fpp*100:.4f}%)\n")
             f.write(f"NFPP = {nfpp:.6f} ({nfpp*100:.4f}%)\n\n")
             f.write(f"Verdict: {verdict}\n\n")

@@ -29,9 +29,10 @@ docs/validation_results.json
 rnaas_submission/
 METHODOLOGY.md
 
-# New sector data (re-downloadable)
+# New sector data (re-downloadable/re-generable)
 data/lightcurves_new_sectors/
 candidates_new_sectors.json
+results/new_sectors/
 
 # Temporary analysis scripts
 python/tls_remaining.py

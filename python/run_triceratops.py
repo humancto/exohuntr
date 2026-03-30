@@ -37,11 +37,10 @@ if __name__ == '__main__':
     flux_raw = lc.flux.value
 
     # Get sector numbers for TRICERATOPS
+    import re
     sector_numbers = []
     for s in search[:n_download]:
         mission_str = str(s.mission)
-        # Try multiple extraction patterns
-        import re
         nums = re.findall(r'\d+', mission_str)
         if nums:
             sector_numbers.append(int(nums[0]))
@@ -60,11 +59,6 @@ if __name__ == '__main__':
     # Phase-fold the light curve
     print("\n[2/5] Phase-folding light curve...", flush=True)
     # Find T0 by finding the deepest dip
-    from scipy.signal import savgol_filter
-    try:
-        smooth = savgol_filter(flux_raw, 101, 3)
-    except Exception:
-        smooth = flux_raw
     phase = time_raw % PERIOD
     n_bins = 200
     bin_edges = np.linspace(0, PERIOD, n_bins + 1)
@@ -127,7 +121,7 @@ if __name__ == '__main__':
         target.calc_depths(tdepth=TDEPTH)
 
     # Step 5: Calculate FPP
-    print("\n[5/5] Running TRICERATOPS FPP calculation (N=100000)...", flush=True)
+    print("\n[5/5] Running TRICERATOPS FPP calculation (N=50000)...", flush=True)
     print("  This may take 10-30 minutes...", flush=True)
     try:
         target.calc_probs(
@@ -135,7 +129,7 @@ if __name__ == '__main__':
             flux_0=flux_folded,
             flux_err_0=flux_err,
             P_orb=PERIOD,
-            N=100000,  # reduced from 1M for speed; still statistically robust
+            N=50000,  # reduced from 1M for speed
         )
 
         fpp = target.FPP

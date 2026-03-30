@@ -109,10 +109,11 @@ if __name__ == '__main__':
                 failed += 1
                 continue
 
+            flux_err = lc.flux_err.value if lc.flux_err is not None else np.full(len(lc.time.value), 0.001)
             df = pd.DataFrame({
                 'time': lc.time.value,
                 'flux': lc.flux.value,
-                'flux_err': lc.flux_err.value if lc.flux_err is not None else 0.001,
+                'flux_err': flux_err,
             })
             df.to_csv(filepath, index=False)
             downloaded += 1

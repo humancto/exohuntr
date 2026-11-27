@@ -316,7 +316,7 @@ footer a{color:var(--accent);text-decoration:none}
       <div class="pipeline-step">
         <div class="step-num">01</div>
         <h3>Download <span class="tech python">Python</span></h3>
-        <p>Fetch real light curves from NASA MAST archive. We targeted <strong>unconfirmed TOI candidates</strong> &mdash; the best chance at real discovery.</p>
+        <p>Fetch real light curves from NASA MAST archive. We targeted <strong>unconfirmed TOI candidates</strong> &mdash; a sample of previously cataloged signals for independent recovery.</p>
       </div>
       <div class="pipeline-step">
         <div class="step-num">02</div>
@@ -434,7 +434,9 @@ footer a{color:var(--accent);text-decoration:none}
       <h2>Important <span class="accent">Caveats</span></h2>
     </div>
     <div class="caveat-box">
-      <p>These are <strong>candidate detections</strong>, not confirmed planets. Before claiming discovery, candidates need:</p>
+      <p>These are <strong>historical transit-search results</strong> on previously cataloged TESS targets. Exohuntr independently recovered and vetted signals; it did not discover or confirm new planets.</p>
+      <p><strong>External confirmation (September 2026):</strong> <a href="https://arxiv.org/abs/2609.35747">Cadieux et al.</a> report confirming TOI 210.01 (TIC 141608198) as <strong>TOI-210 b</strong> using TESS photometry, ground-based transit observations, and NIRPS radial velocities. Their fitted radius is 2.234 &plusmn; 0.074 Earth radii and the orbit is about 9.01 days. Exohuntr recovered that known signal in March and estimated 2.2 Earth radii.</p>
+      <p>Vetting and follow-up for a candidate can include:</p>
       <ul>
         <li>Eclipsing binary checks (V-shaped dips, odd/even depth differences)</li>
         <li>Centroid shift analysis (signal may come from a background star)</li>

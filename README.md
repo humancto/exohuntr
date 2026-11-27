@@ -34,19 +34,21 @@ Applied to 200 unconfirmed TESS Objects of Interest (TOIs), the pipeline:
 
 **One candidate &mdash; TOI 133.01 &mdash; passes all deep-validation tests**, consistent with a 1.9 R&#8853; super-Earth on an 8.2-day orbit.
 
-> **Note:** These are existing TOIs from the TESS pipeline. This work provides independent detection and validation, not new discoveries. Confirmation requires ground-based follow-up observations.
+> **Scope:** These are existing TOIs from the TESS pipeline. Exohuntr independently recovered and vetted the signals in archival data; it did not discover or confirm new planets.
 
 ---
 
 ## Validated Candidates
 
-After deep validation (centroid analysis, Gaia DR3 contamination check, TLS independent confirmation, multi-sector secondary eclipse search), three candidates remain as physically plausible planet signals:
+After deep validation (centroid analysis, Gaia DR3 contamination check, TLS independent confirmation, multi-sector secondary eclipse search), three candidates remained as physically plausible planet signals in the March 2026 run. The table preserves the project's original measurements and assessments:
 
 | Target                         | Period   | Rp (R&#8853;) | TLS SDE  | Centroid | Gaia             | Sec. Eclipse     | Assessment |
 | ------------------------------ | -------- | ------------- | -------- | -------- | ---------------- | ---------------- | ---------- |
 | **TOI 133.01** / TIC 219338557 | 8.2065 d | **1.9**       | **28.4** | Pass     | Clear            | Pass             | **Strong** |
 | **TOI 155.01** / TIC 129637892 | 5.4504 d | **5.3**       | **20.1** | Pass     | Clear            | Marginal&dagger; | **Strong** |
 | **TOI 210.01** / TIC 141608198 | 8.9884 d | **2.2**       | **7.1**  | Pass     | 1 faint neighbor | Pass&Dagger;     | **Strong** |
+
+**Subsequent external confirmation (September 2026):** [Cadieux et al.](https://arxiv.org/abs/2609.35747) report confirming TOI 210.01 (TIC 141608198) as **TOI-210 b** using TESS photometry, ground-based transit observations, and NIRPS radial velocities. Their fitted radius is **2.234 ± 0.074 Earth radii** and the orbital period is about **9.01 days**. Exohuntr's March run independently recovered the previously cataloged TESS signal and estimated 2.2 Earth radii. This is a match for one target, not a new discovery or a validation of the pipeline as a whole.
 
 <sup>&dagger; Secondary eclipse depth of 0.002% is consistent with planetary thermal emission rather than eclipsing binary signatures (which produce 0.1&ndash;10% depths).</sup>
 <sup>&Dagger; An initial 10-sector analysis showed a marginal 3.9&sigma; secondary eclipse. A follow-up analysis using all 52 available sectors (1.8M data points) yielded no detection (&minus;2.8&sigma;), confirming the earlier signal was noise.</sup>
@@ -153,7 +155,7 @@ The top 3 physically plausible candidates (smallest Rp) undergo additional tests
 ## Limitations and Caveats
 
 - **These are not new discoveries.** All targets are existing TOIs from the TESS pipeline. This work provides independent detection and validation using a separate codebase.
-- **These are not confirmed planets.** Transit detection alone cannot confirm a planet. Confirmation requires radial velocity measurements, high-resolution imaging, and/or statistical validation (e.g., [VESPA](https://ui.adsabs.harvard.edu/abs/2012ApJ...761....6M)).
+- **The pipeline does not confirm planets.** The assessments above describe this run, not current catalog dispositions. Transit detection alone cannot confirm a planet. Confirmation requires radial velocity measurements, high-resolution imaging, and/or statistical validation (e.g., [VESPA](https://ui.adsabs.harvard.edu/abs/2012ApJ...761....6M)).
 - **Rp estimates are approximate.** Planet radius depends on stellar parameters from the TESS Input Catalog, which carry uncertainties of 5&ndash;20%.
 - **Most detections are likely false positives.** Of 197 signals, many with Rp/Rs &gt; 1.0 are eclipsing binaries or blended sources. This is expected and normal in blind transit searches.
 - **Centroid analysis is limited.** We compute flux-weighted centroids from TPF pixel data rather than using the full SPOC centroid pipeline, which includes PRF-fitted positions.
@@ -165,7 +167,7 @@ The top 3 physically plausible candidates (smallest Rp) undergo additional tests
 ### For this pipeline
 
 - [ ] Run on less-studied TESS sectors (80&ndash;96) to target genuinely unsearched stars
-- [ ] Download all available sectors for TOI 210.01 (61 sectors) to resolve the marginal secondary eclipse
+- [x] Recheck the marginal secondary eclipse for TOI 210.01 using 52 sectors (March 2026; no significant secondary eclipse detected)
 - [ ] Implement proper PRF-fitted centroid analysis using Target Pixel Files
 - [ ] Add iterative BLS with signal subtraction for multi-planet system detection
 - [ ] Integrate with NASA's [EXOTIC](https://github.com/rzellem/EXOTIC) citizen science pipeline

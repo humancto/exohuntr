@@ -85,6 +85,15 @@ body{
   display:flex;flex-wrap:wrap;justify-content:center;gap:48px;
   margin-top:48px;animation:fadeIn 1s ease 0.6s both;
 }
+.follow-up-badge{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  position:relative;z-index:1;margin-top:28px;padding:8px 16px;max-width:100%;
+  border:1px solid rgba(34,211,238,.35);border-radius:100px;
+  background:var(--bg2);color:var(--accent);font-size:14px;font-weight:700;
+  text-decoration:none;
+}
+.follow-up-badge:hover,.follow-up-badge:focus-visible{text-decoration:underline}
+.follow-up-badge:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .stat{text-align:center}
 .stat .number{
   font-size:clamp(2.5rem,5vw,4rem);font-weight:900;
@@ -293,6 +302,7 @@ footer a{color:var(--accent);text-decoration:none}
     <div class="stat"><div class="number purple">5+4</div><div class="label">Validation + Deep Tests</div></div>
     <div class="stat"><div class="number green">200</div><div class="label">TOIs Analyzed</div></div>
   </div>
+  <a class="follow-up-badge" href="https://arxiv.org/abs/2609.35747">TOI-210 b: Externally confirmed <span aria-hidden="true">↗</span></a>
   <div class="scroll-hint">
     <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
   </div>

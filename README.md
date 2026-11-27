@@ -53,7 +53,7 @@ After deep validation (centroid analysis, Gaia DR3 contamination check, TLS inde
 <sup>&dagger; Secondary eclipse depth of 0.002% is consistent with planetary thermal emission rather than eclipsing binary signatures (which produce 0.1&ndash;10% depths).</sup>
 <sup>&Dagger; An initial 10-sector analysis showed a marginal 3.9&sigma; secondary eclipse. A follow-up analysis using all 52 available sectors (1.8M data points) yielded no detection (&minus;2.8&sigma;), confirming the earlier signal was noise.</sup>
 
-**Pipeline validation:** TOI 125.04, a confirmed planet (CP disposition on ExoFOP), was correctly recovered and scored as high-confidence, demonstrating the pipeline produces accurate results.
+**Signal identity check:** The 4.6554-day signal in the historical run is consistent in period with [confirmed TOI-125 b](https://exoplanetarchive.ipac.caltech.edu/overview/TOI-125). The input was labeled TOI 125.04, which NASA lists separately as a candidate. This is not a recovery or confirmation of TOI-125.04.
 
 <p align="center">
   <img src="results/deep_analysis/tls_TOI_133_01.png" width="800" alt="TOI 133.01 — TLS periodogram and phase-folded transit">

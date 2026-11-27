@@ -5,6 +5,10 @@
   <img src="https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge&labelColor=0a1128" alt="MIT License">
 </p>
 
+<p align="center">
+  <a href="https://arxiv.org/abs/2609.35747"><img src="https://img.shields.io/badge/TOI--210_b-Externally_confirmed-087f8c?style=for-the-badge&amp;labelColor=0a1128" alt="TOI-210 b: Externally confirmed by Cadieux et al."></a>
+</p>
+
 <h1 align="center">Exohuntr</h1>
 
 <p align="center">
